@@ -1,0 +1,161 @@
+/*
+  Localizable.strings
+  VCCMac
+
+  Created by yuki on 2023/01/05.
+  
+*/
+
+// Common
+"OK" = "OK";
+"Cancel" = "キャンセル";
+
+// Projects
+"Base" = "ベース";
+"Avatar" = "アバター";
+"World" = "ワールド";
+"World (U#)" = "ワールド (U#)";
+
+"Base (Legacy)" = "ベース (旧SDK)";
+"Avatar (Legacy)" = "アバター (旧SDK)";
+"World (Legacy)" = "ワールド (旧SDK)";
+"UdonSharp (Legacy)" = "香川シャープ (旧SDK)";
+
+"Community" = "Community";
+"Unkown" = "Unkown (%@)";
+"Error Project" = "Error Project";
+
+// Tools
+"Project" = "プロジェクト";
+"Learn" = "学習";
+"Settings" = "設定";
+"Tools" = "ツール";
+"Debug" = "デバッグ";
+"Components" = "コンポーネント";
+
+// AppearanceType
+"Use system setting" = "自動";
+"Light mode" = "ライト";
+"Dark mode" = "ダーク";
+
+// Filter Type
+"All" = "全て";
+"VPM" = "VPM";
+"Legacy" = "旧SDK";
+"Avatar" = "アバター";
+"World" = "ワールド";
+"U#" = "U#";
+
+// AppModel + Project
+"Creating Project..." = "プロジェクトを作成しています...";
+"Project created." = "プロジェクトを作成ししました。";
+"Select a Folder to Unpack Backup." = "バックアップを展開するフォルダーを選んでください。";
+"Unpacking Backup..." = "バックアップを展開しています...";
+"Unpack Backup Done." = "バックアップを展開しました。";
+"Add Project Failed." = "プロジェクトを追加できませんでした。";
+"Backup Name" = "バックアップの名称";
+"Backup Project Failed." = "プロジェクトをバックアップできませんでした。";
+"Reload Project Failed." = "プロジェクトをリ再読み込みできませんでした。";
+"Remove Project Failed." = "プロジェクトを削除できませんでした。";
+"Cannot Find Project." = "プロジェクトが見つかりません。";
+"Rename Project Failed." = "プロジェクトの名称を変更できませんでした。";
+"Do you want to move project to the Trash, or only remove the reference to it?" = "\"%@\"をゴミ箱に移動しますか?もしくはVCCからのリンクを削除しますか?";
+"This operation cannot be undone." = "プロジェクトをはゴミ箱に移動されます。";
+"Move to Trash" = "ゴミ箱に入れる";
+"Remove Reference" = "リンクを削除";
+
+"Show in Finder" = "Finderで開く";
+"Move to Trash" = "ゴミ箱に移動";
+"Unlink" = "リンクを削除";
+"Reload" = "再読み込み";
+"Rename" = "名称変更";
+"Backup (project)" = "\"%@\"をバップアップ";
+
+// RenameWindow
+"Rename Project" = "名称変更";
+"Project Name" = "プロジェクト名";
+
+// TemplateWindow
+"New Project" = "新規プロジェクト";
+"Loading..." = "ロード中...";
+"Installing Templetes..." = "テンプレートをインストールしています...";
+"No Templetes" = "テンプレートがありません。";
+"Install Templetes" = "テンプレートをインストール";
+"Unable to connect to the Internet" = "インターネットに接続できません。";
+
+// ProjectHeader
+"Open" = "開く";
+"New Project" = "新規プロジェクト";
+"Filter By" = "フィルター";
+"Type" = "種別";
+
+// Project
+"Drop Project Folder Here." = "プロジェクトフォルダをここにドロップ";
+"Open in Finder" = "Finderで開く";
+
+// Package
+"Add" = "追加";
+"Remove" = "削除";
+"Update" = "アップデート";
+
+// Project Detail
+"Migrating Project..." = "プロジェクトを移行しています...";
+"Open in Unity" = "Unityで開く";
+"Migrate to VCC" = "VCCに移行する";
+"No Project" = "プロジェクトがありません。";
+
+// Repo
+"Installed" = "インストール済み";
+"Official" = "公式";
+"Curated" = "おすすめ";
+"User" = "ユーザー";
+"Packages" = "パッケージ";
+"Package is unavailable for legacy project." = "パッケージは旧SDKプロジェクトでは使用できません。";
+
+"Adding Package..." = "パッケージ'%@'を追加しています...";
+"Package added." = "パッケージを追加しました。";
+"Removing Package..." = "パッケージ'%@'を削除しています...";
+"Removed Package." = "パッケージを削除しました。";
+
+// Requirements
+"VCC for mac is not available." = "VCC for macは使用できません。";
+"VCC for mac is not available.message" = "VCC for macの使用要件が満たされていません。以下の要件を確認し修正してください。修正できない場合は作者(twitter@yuki_arano)に連絡してください。";
+
+// Reasons
+"Auto Fix" = "自動修正";
+
+"Do the following fixes.title" = "以下の修正を上から順番に実行してください。";
+
+"Unkown error" = "不明なエラー";
+"Unkown error.message" = "要件は不明な理由により満たされませんでした。作者 twitter@yuki_aranoに連絡してください。";
+
+"UnityHub not found" = "UnityHubが見つかりません。";
+"UnityHub not found.message" = "UnityHubが見つからないかセットアップが間違っています。
+もしUnityHubがインストール済みならば\"自動修正\"を押してください。
+もしUnityHubをインストールしていないならば、'https://unity.com/download'からダウンロードしてインストールしてください。";
+"Download UnityHub" = "UnityHubをダウンロード";
+
+"Unity not found" = "Unityが見つかりません";
+"Unity not found.message" = "Unityがインストールされていないかセットアップが間違っています。
+もしUnity 2019.4.31f1をインストール済みならば\"自動修正\"を押してください。
+もしインストールしていないならば、UnityHubを開いてUnity 2019.4.31f1をインストールした後、\"自動修正\"を押してください。";
+"Open UnityHub" = "UnityHubを開く";
+
+"VCC is not Valid" = "VCCが不明な理由により使用できません。";
+"VCC is not Valid.message" = "VCCバイナリは不正な状態です。Dotnetから再インストールしてください。";
+
+"VCC is not installed" = "VPMがインストールされていません。";
+"VCC is not installed.message" = "
+以下のコマンドをターミナルアプリにコピー&ペーストして、VPMをインストールしてください。
+もしくは以下の\"自動修正\"を押してVPMをインストールしてください。";
+
+"Installing VPM command..." = "VPMをインストールしています...";
+"VPM command installed." = "VPMをインストールしました。";
+"Copy Code & Open Terminal" = "コピーしてターミナルを開く";
+
+"Dotnet is not installed." = "Dotnetがインストールされていません。";
+"Dotnet is not installed.message" = "Dotnetがインストールされていません。Microsoftのサイトからダウンロードしてインストールしてください。";
+"Download Dotnet" = "Dotnetをダウンロード";
+
+"Dotnet is not valid." = "Dotnetのバージョンがマッチしません。";
+"Dotnet is not valid.message" = "VPMが必要としているバージョンのDotnetがインストールされていません。Microsoftのサイトからダウンロードしてインストールしてください。";

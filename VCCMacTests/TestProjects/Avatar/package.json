@@ -1,0 +1,8 @@
+{
+	"name" : "com.vrchat.template.base",
+	"displayName" : "Base VRChat Project",
+	"description" : "",
+	"version" : "1.0.0",
+	"category" : "ProjectTemplate",
+	"dependencies" : {}
+}

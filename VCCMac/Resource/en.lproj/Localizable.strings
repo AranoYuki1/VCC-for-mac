@@ -1,0 +1,163 @@
+/* 
+  Localizable.strings
+  VCCMac
+
+  Created by yuki on 2023/01/05.
+  
+*/
+
+// Common
+"OK" = "OK";
+"Cancel" = "Cancel";
+
+// Projects
+"Base" = "Base";
+"Avatar" = "Avatar";
+"World" = "World";
+"World (U#)" = "World (U#)";
+
+"Base (Legacy)" = "Base (Legacy)";
+"Avatar (Legacy)" = "Avatar (Legacy)";
+"World (Legacy)" = "World (Legacy)";
+"UdonSharp (Legacy)" = "UdonSharp (Legacy)";
+
+"Community" = "Community";
+"Unkown" = "Unkown (%@)";
+"Error Project" = "Error Project";
+
+// Tools
+"Project" = "Project";
+"Learn" = "Learn";
+"Settings" = "Settings";
+"Tools" = "Tools";
+"Debug" = "Debug";
+"Components" = "Components";
+
+// AppearanceType
+"Use system setting" = "Use system setting";
+"Light mode" = "Light mode";
+"Dark mode" = "Dark mode";
+
+// Filter Type
+"All" = "All";
+"VPM" = "VPM";
+"Legacy" = "Legacy";
+"Avatar" = "Avatar";
+"World" = "World";
+"U#" = "U#";
+
+// AppModel + Project
+"Creating Project..." = "Creating Project...";
+"Project created." = "Project created.";
+"Select a Folder to Unpack Backup." = "Select a Folder to Unpack Backup.";
+"Unpacking Backup..." = "Unpacking Backup...";
+"Unpack Backup Done." = "Unpack Backup Done.";
+"Add Project Failed." = "Add Project failed.";
+"Backup Name" = "Backup Name";
+"Backup Project Failed." = "Backup Project Failed.";
+"Reload Project Failed." = "Reload Project Failed.";
+"Remove Project Failed." = "Remove Project Failed.";
+"Cannot Find Project." = "Cannot Find Project.";
+"Rename Project Failed." = "Rename Project Failed.";
+"Do you want to move project to the Trash, or only remove the reference to it?" = "Do you want to move '%@' to the Trash, or only remove the reference to it?";
+"This operation cannot be undone." = "This operation cannot be undone.";
+"Move to Trash" = "Move to Trash";
+"Remove Reference" = "Remove Reference";
+
+
+"Show in Finder" = "Show in Finder";
+"Move to Trash" = "Move to Trash";
+"Unlink" = "Unlink";
+"Reload" = "Reload";
+"Rename" = "Rename";
+"Backup (project)" = "Backup '%@'";
+
+// RenameWindow
+"Rename Project" = "Rename Project";
+"Project Name" = "Project Name";
+
+// TemplateWindow
+"New Project" = "New Project";
+"Loading..." = "Loading...";
+"Installing Templetes..." = "Installing Templetes...";
+"No Templetes" = "No Templetes";
+"Install Templetes" = "Install Templetes";
+"Unable to connect to the Internet" = "Unable to connect to the Internet";
+
+// ProjectHeader
+"Open" = "Open";
+"New Project" = "New Project";
+"Filter By" = "Filter By";
+"Type" = "Type";
+
+// Project
+"Drop Project Folder Here." = "Drop Project Folder Here.";
+"Open in Finder" = "Open in Finder";
+
+// Package
+"Add" = "Add";
+"Remove" = "Remove";
+"Update" = "Update";
+
+// Project Detail
+"Migrating Project..." = "Migrating Project...";
+"Open in Unity" = "Open in Unity";
+"Migrate to VCC" = "Migrate to VCC";
+"No Project" = "No Project";
+
+// Repo
+"Installed" = "Installed";
+"Official" = "Official";
+"Curated" = "Curated";
+"User" = "User";
+"Packages" = "Packages";
+"Package is unavailable for legacy project." = "Package is unavailable for legacy project.";
+
+"Adding Package..." = "Adding Package '%@'...";
+"Package added." = "Package added.";
+"Removing Package..." = "Removing Package '%@'...";
+"Removed Package." = "Removed Package.";
+
+// Requirements
+"VCC for mac is not available." = "VCC for mac is not available.";
+"VCC for mac is not available.message" = "The requirements for using VCC have not been met. Please check and correct the following requirements.";
+
+// Reasons
+"Auto Fix" = "Auto Fix";
+
+"Do the following fixes.title" = "Do the following fixes, in order from top to bottom.";
+
+"Unkown error" = "Unkown error";
+"Unkown error.message" = "Requirement not fulfilled by unknown reason.";
+
+"UnityHub not found" = "UnityHub not found";
+"UnityHub not found.message" = "UnityHub is not installed or setup is not done.
+If Unity 2019.4.31f1 is already installed, press \"Auto Fix\".
+If not installed, download and install UnityHub from 'https://unity.com/download'";
+"Download UnityHub" = "Download UnityHub";
+
+"Unity not found" = "Unity not found";
+"Unity not found.message" = "Unity is not installed or setup is not done.
+If Unity 2019.4.31f1 is already installed, press \"Auto Fix\".
+If not installed, start Unity Hub and install Unity 2019.4.31f1, then press \"Auto Fix\".";
+"Open UnityHub" = "Open UnityHub";
+
+"VCC is not Valid" = "VCC is not Valid";
+"VCC is not Valid.message" = "Cannot execute VCC binary. The binary may be corrupt, please reinstall from dotnet.";
+
+"VCC is not installed" = "VCC is not installed";
+"VCC is not installed.message" = "
+Copy and paste the following commands into the terminal to install VPM.
+Or press \"Auto Fix\" to auto install VPM.
+";
+
+"Installing VPM command..." = "Installing VPM command...";
+"VPM command installed." = "VPM command installed.";
+"Copy Code & Open Terminal" = "Copy Code & Open Terminal";
+
+"Dotnet is not installed." = "Dotnet is not installed.";
+"Dotnet is not installed.message" = "Dotnet is not installed or not found in current context. Please install from Microsoft download page.";
+"Download Dotnet" = "Download Dotnet";
+
+"Dotnet is not valid." = "Dotnet is not valid.";
+"Dotnet is not valid.message" = "The installed Dotnet does not match the version required by VPM.\nPlease install from Microsoft download page.";
