@@ -13,7 +13,7 @@ final class ErrorViewController: NSViewController {
         self.view = NSView()
     }
     override func viewDidLoad() {
-        self.view.__setBackgroundColor(.red)
+
     }
 }
 
