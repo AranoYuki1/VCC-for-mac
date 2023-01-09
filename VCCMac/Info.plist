@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>SUFeedURL</key>
-	<string></string>
+	<string>https://aranoyuki1.github.io/VCC-for-mac/sparkle/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>DOsNciodUTmm6TgsE6uTJtoYBAZqvCjSzztuz+7I+4w=</string>
 </dict>
