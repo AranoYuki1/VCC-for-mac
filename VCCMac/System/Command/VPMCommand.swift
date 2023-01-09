@@ -76,8 +76,10 @@ final class VPMCommand {
             }
     }
     
-    func migrateProject(at url: URL, progress: PassthroughSubject<String, Never>) -> Promise<Void, Error> {
-        return catalyst.run(["migrate", "project", url.path], interactiveStyle: .line(progress)).eraseToVoid()
+    func migrateProject(at url: URL, progress: PassthroughSubject<String, Never>, inplace: Bool) -> Promise<Void, Error> {
+        var arguments = ["migrate", "project", url.path]
+        if inplace { arguments.append("--inplace") }
+        return catalyst.run(arguments, interactiveStyle: .line(progress)).eraseToVoid()
     }
     
     // MARK: - Package -

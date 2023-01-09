@@ -45,7 +45,16 @@ In this section you should use terminal.
 ## GitHub (relase)
 
 1. Create a tag for the release and push that tag.
+
+   ```
+   git tag [version]
+   git push origin [version]
+   ```
+
+   
+
 2. Create a Github release page.
+
 3. Upload app archive as attached files.
 
 

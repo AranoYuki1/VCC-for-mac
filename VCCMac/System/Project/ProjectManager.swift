@@ -44,7 +44,7 @@ final class ProjectManager {
             .flatMap{ unityCommand.openProject(at: projectURL) }
     }
     
-    func migrateProject(_ project: Project, progress: PassthroughSubject<String, Never>) -> Promise<Void, Error> {
+    func migrateProject(_ project: Project, progress: PassthroughSubject<String, Never>, inplace: Bool) -> Promise<Void, Error> {
         project.projectType
             .tryFlatMap{[self] projectType in
                 guard projectType.isLegacy else { return .reject(ProjectError.migrateFailed("Not a Legacy Project.")) }
@@ -66,7 +66,37 @@ final class ProjectManager {
                 let migratedProjectFilename = findMigratedProject()
                 let migratedProjectURL = baseDirectoryURL.appendingPathComponent(migratedProjectFilename)
                 
-                return command.migrateProject(at: projectURL, progress: progress)
+                return command.migrateProject(at: projectURL, progress: progress, inplace: inplace)
+                    .flatMap{ self.addProject(migratedProjectURL) }
+                    .eraseToVoid()
+            }
+    }
+    
+    private func migrateProjctInplace()
+    
+    private func migrateProjectCopy(_ project: Project, progress: PassthroughSubject<String, Never>, inplace: Bool) -> Promise<Void, Error> {
+        project.projectType
+            .tryFlatMap{[self] projectType in
+                guard projectType.isLegacy else { return .reject(ProjectError.migrateFailed("Not a Legacy Project.")) }
+                guard let projectURL = project.projectURL else { return .reject(ProjectError.migrateFailed("Project not found.")) }
+                        
+                let baseDirectoryURL = projectURL.deletingLastPathComponent()
+                let migratedProjectBasename = projectURL.lastPathComponent + "-Migrated"
+                
+                func findMigratedProject() -> String {
+                    var index = 1
+                    var filename = migratedProjectBasename
+                    while FileManager.default.fileExists(at: baseDirectoryURL.appendingPathComponent(filename)) {
+                        index += 1
+                        filename = "\(migratedProjectBasename)-\(index)"
+                    }
+                    return filename
+                }
+                
+                let migratedProjectFilename = findMigratedProject()
+                let migratedProjectURL = baseDirectoryURL.appendingPathComponent(migratedProjectFilename)
+                
+                return command.migrateProject(at: projectURL, progress: progress, inplace: inplace)
                     .flatMap{ self.addProject(migratedProjectURL) }
                     .eraseToVoid()
             }

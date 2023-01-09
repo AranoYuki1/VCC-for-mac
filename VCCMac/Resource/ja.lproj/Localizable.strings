@@ -101,7 +101,7 @@
 // Project Detail
 "Migrating Project..." = "プロジェクトを移行しています...";
 "Open in Unity" = "Unityで開く";
-"Migrate to VCC" = "VCCに移行する";
+"Migrate to VCC" = "VCCに移行";
 "No Project" = "プロジェクトがありません。";
 
 // Repo

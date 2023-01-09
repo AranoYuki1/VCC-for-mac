@@ -68,6 +68,7 @@ final class AppSuccessModel {
     @Observable var selectedProject: Project?
     @RestorableState("filter") var filterType: ProjectFilterType = .all
     @RestorableState("filterlegacy") var legacyFilterType: ProjectLegacyFilterType = .all
+    @RestorableState("migration.copy") var copyMigration = true
     @RestorableState("repo") var selectedRepo: RepoType = .official
     
     init(appModel: AppModel, command: VPMCommand, projectManager: ProjectManager, packageManager: PackageManager, logger: Logger) {
