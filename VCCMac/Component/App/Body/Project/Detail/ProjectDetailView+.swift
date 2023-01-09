@@ -77,7 +77,7 @@ final class ProjectDetailViewController: NSViewController {
     private func openInUnity() {
         guard let model = self.appSuccessModel, let project = model.selectedProject else { return NSSound.beep() }
         
-        model.projectManager.openInUnity(project)
+        model.projectManager.openInUnity(project, commandSettings: appModel.commandSetting)
             .receive(on: .main)
             .catch{ self.appModel.logger.error($0) }
     }

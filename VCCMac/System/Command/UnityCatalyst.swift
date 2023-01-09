@@ -11,8 +11,8 @@ final class UnityCatalyst: CommandCatalyst {
     let executableURL: URL
     let logger: Logger
     
-    init(logger: Logger) {
-        self.executableURL = URL(filePath: "/Applications/Unity/Hub/Editor/2019.4.31f1/Unity.app/Contents/MacOS/Unity")
+    init(executableURL: URL, logger: Logger) {
+        self.executableURL = executableURL
         self.logger = logger
     }
 }

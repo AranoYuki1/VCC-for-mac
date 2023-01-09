@@ -16,7 +16,7 @@ final class VCCCommandSetting {
         didSet { self.dictionary["pathToUnityExe"] = pathToUnityExe; save() }
     }
     @Observable var pathToUnityHub: String {
-        didSet { self.dictionary["pathToUnityExe"] = pathToUnityExe; save() }
+        didSet { self.dictionary["pathToUnityHub"] = pathToUnityHub; save() }
     }
     
     let settingURL = URL.homeDirectory.appending(path: ".local/share/VRChatCreatorCompanion/settings.json")

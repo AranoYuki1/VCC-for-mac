@@ -33,9 +33,10 @@ final class ProjectManager {
         _ = self.reloadProjects()
     }
     
-    func openInUnity(_ project: Project) -> Promise<Void, Error> {
+    func openInUnity(_ project: Project, commandSettings: VCCCommandSetting) -> Promise<Void, Error> {
         guard let projectURL = project.projectURL else { return .reject(ProjectError.projectOpenFailed) }
-        let catalyst = UnityCatalyst(logger: self.logger)
+        let unityURL = URL(filePath: commandSettings.pathToUnityExe)
+        let catalyst = UnityCatalyst(executableURL: unityURL, logger: self.logger)
         let unityCommand = UnityCommand(catalyst: catalyst)
         
         return self.projectIOManager.updateAccessTime(project)
