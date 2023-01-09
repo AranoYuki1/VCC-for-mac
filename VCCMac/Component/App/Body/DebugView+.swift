@@ -17,7 +17,7 @@ final class __DebugViewController: NSViewController {
         cell.showNekoButton.actionPublisher
             .sink{
                 let toast = Toast(message: "ねこですよろしくおねがいします")
-                let progress = Progress(totalUnitCount: 20)
+                let progress = Progress(totalUnitCount: 10)
                 toast.addSpinningIndicator()
                 let label = toast.addSubtitleLabel("Nya!")
                 let colors = [
@@ -25,8 +25,9 @@ final class __DebugViewController: NSViewController {
                 ].map{ $0.withAlphaComponent(0.2) }
                 Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
                     if progress.isFinished {
-                        timer.invalidate(); toast.close()
-                        Toast(message: "ねこでした。").show()
+                        timer.invalidate();
+                        if toast.isCurrentToast { Toast(message: "ねこでした。").show() }
+                        toast.close()
                     }
                     label.stringValue += "Nya!"
                     progress.completedUnitCount += 1
@@ -35,6 +36,9 @@ final class __DebugViewController: NSViewController {
                 
                 toast.addSpinningProgressIndicator(progress)
                 toast.addBarProgressIndicator(progress)
+                toast.addCloseButton().actionPublisher
+                    .sink{ Toast(message: "ねこじゃないの?").show() }
+                    .store(in: &self.objectBag)
                 toast.show(.whileDeinit)
             }
             .store(in: &objectBag)

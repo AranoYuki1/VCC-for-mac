@@ -11,7 +11,7 @@ import CoreUtil
 import DequeModule
 import UserNotifications
 
-final public class Toast {
+final public class Toast: NSObject {
     public var message: String {
         get { toastWindow.toastView.message } set { assert(Thread.isMainThread); toastWindow.toastView.message = newValue }
     }
@@ -22,8 +22,10 @@ final public class Toast {
         get { toastWindow.toastView.color } set { assert(Thread.isMainThread); toastWindow.toastView.color = newValue }
     }
     
+    public private(set) var isCurrentToast = false
+    public private(set) static var currentToast: Toast?
+    
     private let toastWindow = ToastWindow()
-    private var isShowingToast = false
     private var showingOption: ShowingOption?
     
     public enum ShowingOption {
@@ -31,7 +33,6 @@ final public class Toast {
         case whileDeinit
     }
     
-    private static var showingToast: Toast?
     private static var pendingToasts = Deque<Toast>()
     
     public convenience init(message: String, action: Action? = nil, color: NSColor? = nil) {
@@ -41,7 +42,9 @@ final public class Toast {
         self.color = color
     }
     
-    public enum AttributeViewPosition { case left, right, bottom }
+    public enum AttributeViewPosition {
+        case left, right, bottom
+    }
     
     public func addAttributeView(_ view: NSView, position: AttributeViewPosition) {
         assert(Thread.isMainThread)
@@ -50,12 +53,12 @@ final public class Toast {
     
     public func show(_ option: ShowingOption) {
         assert(Thread.isMainThread)
-        if Toast.showingToast != nil { Toast.pendingToasts.append(self); return }
+        if Toast.currentToast != nil { Toast.pendingToasts.append(self); return }
         
         self.toastWindow.show()
-        self.isShowingToast = true
+        self.isCurrentToast = true
         self.showingOption = option
-        Toast.showingToast = self
+        Toast.currentToast = self
         
         switch option {
         case .duration(let duration):
@@ -73,12 +76,12 @@ final public class Toast {
     
     public func close() {
         assert(Thread.isMainThread)
-        guard self.isShowingToast else { return }
+        guard self.isCurrentToast else { return }
         
         self.toastWindow.closeToast()
-        self.isShowingToast = true
+        self.isCurrentToast = true
         self.showingOption = nil
-        Toast.showingToast = nil
+        Toast.currentToast = nil
         
         guard let nextToast = Toast.pendingToasts.popFirst() else { return }
         nextToast.show()
@@ -114,7 +117,7 @@ extension Toast {
         indicator.startAnimation(nil)
         
         progress.publisher(for: \.fractionCompleted).receive(on: DispatchQueue.main)
-            .sink{[unowned indicator] in indicator.doubleValue = $0 }.store(in: &indicator.objectBag)
+            .sink{ indicator.doubleValue = $0 }.store(in: &self.objectBag)
         
         self.addAttributeView(indicator, position: .right)
     }
@@ -130,9 +133,19 @@ extension Toast {
         }
         
         progress.publisher(for: \.fractionCompleted).receive(on: DispatchQueue.main)
-            .sink{[unowned indicator] in indicator.doubleValue = $0 }.store(in: &indicator.objectBag)
+            .sink{ indicator.doubleValue = $0 }.store(in: &self.objectBag)
         
         self.addAttributeView(indicator, position: .bottom)
+    }
+    
+    @discardableResult
+    public func addCloseButton() -> NSButton {
+        let closeButton = NSButton(title: "", image: R.image.modal_close())
+        closeButton.isBordered = false
+        self.addAttributeView(closeButton, position: .left)
+        closeButton.actionPublisher
+            .sink{ self.close() }.store(in: &self.objectBag)
+        return closeButton
     }
     
     public func addSubtitleLabel(_ initialMessage: String = "") -> NSTextField {
