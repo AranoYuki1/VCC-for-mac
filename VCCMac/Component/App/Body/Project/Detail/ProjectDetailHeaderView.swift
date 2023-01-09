@@ -8,14 +8,14 @@
 import CoreUtil
 
 final class ProjectDetailHeaderView: NSLoadVisualEffectView {
-    let titleLabel = NSTextField(labelWithString: "Komado_Main") => {
+    let titleLabel = NSTextField(labelWithString: "") => {
         $0.font = .systemFont(ofSize: 17, weight: .semibold)
     }
-    let pathLabel = NSTextField(labelWithString: "/Users/yuki/Desktop/VRChat/Project") => {
+    let pathLabel = NSTextField(labelWithString: "") => {
         $0.font = .systemFont(ofSize: 11)
         $0.textColor = .secondaryLabelColor
     }
-    let dateLabel = NSTextField(labelWithString: "2022/12/4") => {
+    let dateLabel = NSTextField(labelWithString: "") => {
         $0.font = .systemFont(ofSize: 11)
         $0.textColor = .secondaryLabelColor
     }
