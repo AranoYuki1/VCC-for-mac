@@ -159,3 +159,11 @@
 
 "Dotnet is not valid." = "Dotnetのバージョンがマッチしません。";
 "Dotnet is not valid.message" = "VPMが必要としているバージョンのDotnetがインストールされていません。Microsoftのサイトからダウンロードしてインストールしてください。";
+
+// Settings
+"Open settings.json" = "settings.jsonを開く";
+
+"App Theme" = "外観モード";
+"Select which app theme to display" = "表示に使用する外観モード";
+
+"Toggle debug state" = "デバッグ機能を有効にする。";

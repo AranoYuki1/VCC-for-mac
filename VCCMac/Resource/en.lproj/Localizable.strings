@@ -161,3 +161,11 @@ Or press \"Auto Fix\" to auto install VPM.
 
 "Dotnet is not valid." = "Dotnet is not valid.";
 "Dotnet is not valid.message" = "The installed Dotnet does not match the version required by VPM.\nPlease install from Microsoft download page.";
+
+// Settings
+"Open settings.json" = "Open settings.json";
+
+"App Theme" = "App Theme";
+"Select which app theme to display" = "Select which app theme to display";
+
+"Toggle debug state" = "Toggle debug state";

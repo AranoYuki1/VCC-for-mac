@@ -44,7 +44,7 @@ final class SettingViewController: NSViewController {
                 
             }
             .store(in: &objectBag)
-        self.cell.openSettingJoinButton.actionPublisher
+        self.cell.openSettingJsonButton.actionPublisher
             .sink{[unowned self] in
                 NSWorkspace.shared.selectFile(
                     appModel.commandSetting.settingURL.path,
@@ -74,21 +74,21 @@ final private class SettingView: Page {
     let pathToUnityExeField = TextField()  => {
         $0.font = .monospacedSystemFont(ofSize: $0.font!.pointSize, weight: .regular)
     }
-    let pathToUnityExeButton = Button(title: "Auto Fix")
+    let pathToUnityExeButton = Button(title: R.localizable.autoFix())
     
     let pathToUnityHubField = TextField()  => {
         $0.font = .monospacedSystemFont(ofSize: $0.font!.pointSize, weight: .regular)
     }
-    let pathToUnityHubButton = Button(title: "Auto Fix")
+    let pathToUnityHubButton = Button(title: R.localizable.autoFix())
     
-    let openSettingJoinButton = Button(title: "Open settings.json")
+    let openSettingJsonButton = Button(title: R.localizable.openSettingsJson())
     
     override func onAwake() {        
         self.addSection(
-            Area(icon: R.image.paramators(), title: "App Theme", message: "Select which app theme to display", control: appearancePicker)
+            Area(icon: R.image.paramators(), title: R.localizable.appTheme(), message: R.localizable.selectWhichAppThemeToDisplay(), control: appearancePicker)
         )
         self.addSection(
-            Area(icon: R.image.paramators(), title: "Debug", message: "Toggle debug state", control: debugSwitch)
+            Area(icon: R.image.paramators(), title: R.localizable.debug(), message: R.localizable.toggleDebugState(), control: debugSwitch)
         )
         
         self.addSection(H4Title(text: "settings.json"))
@@ -106,6 +106,6 @@ final private class SettingView: Page {
                 make.height.equalTo(16)
             }
         })
-        self.addSection(openSettingJoinButton)
+        self.addSection(openSettingJsonButton)
     }
 }
