@@ -104,18 +104,35 @@ extension Toast {
         self.addAttributeView(indicator, position: .right)
     }
     
-    public func addProgressIndicator(_ progress: Progress) {
+    public func addSpinningProgressIndicator(_ progress: Progress) {
         let indicator = NSProgressIndicator()
         indicator.minValue = 0
         indicator.maxValue = 1
         indicator.style = .spinning
         indicator.isIndeterminate = false
         indicator.controlSize = .small
+        indicator.startAnimation(nil)
         
         progress.publisher(for: \.fractionCompleted).receive(on: DispatchQueue.main)
             .sink{[unowned indicator] in indicator.doubleValue = $0 }.store(in: &indicator.objectBag)
         
         self.addAttributeView(indicator, position: .right)
+    }
+    
+    public func addBarProgressIndicator(_ progress: Progress) {
+        let indicator = NSProgressIndicator()
+        indicator.minValue = 0
+        indicator.maxValue = 1
+        indicator.style = .bar
+        indicator.isIndeterminate = false
+        indicator.snp.makeConstraints{ make in
+            make.width.equalTo(200)
+        }
+        
+        progress.publisher(for: \.fractionCompleted).receive(on: DispatchQueue.main)
+            .sink{[unowned indicator] in indicator.doubleValue = $0 }.store(in: &indicator.objectBag)
+        
+        self.addAttributeView(indicator, position: .bottom)
     }
     
     public func addSubtitleLabel(_ initialMessage: String = "") -> NSTextField {

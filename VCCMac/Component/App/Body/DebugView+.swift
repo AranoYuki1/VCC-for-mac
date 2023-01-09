@@ -14,56 +14,63 @@ final class __DebugViewController: NSViewController {
     override func loadView() { self.view = cell }
     
     override func chainObjectDidLoad() {
-        cell.openFolderButton.actionPublisher
-            .sink{[unowned self] in
-                if let url = appSuccessModel?.projectManager.containerDirectoryURL {
-                    NSWorkspace.shared.open(url)
+        cell.showNekoButton.actionPublisher
+            .sink{
+                let toast = Toast(message: "ねこですよろしくおねがいします")
+                let progress = Progress(totalUnitCount: 20)
+                toast.addSpinningIndicator()
+                let label = toast.addSubtitleLabel("Nya!")
+                let colors = [
+                    NSColor.clear, .systemRed, .systemGreen, .systemGreen, .systemBlue, .systemOrange, .systemYellow, .systemBrown, .systemPink, .systemPurple
+                ].map{ $0.withAlphaComponent(0.2) }
+                Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                    if progress.isFinished { timer.invalidate(); toast.close() }
+                    label.stringValue += "Nya!"
+                    progress.completedUnitCount += 1
+                    toast.color = colors[Int(progress.completedUnitCount) % colors.count]
                 }
+                
+                toast.addSpinningProgressIndicator(progress)
+                toast.addBarProgressIndicator(progress)
+                toast.show(.whileDeinit)
             }
             .store(in: &objectBag)
         
         cell.openLogButton.actionPublisher
-            .sink{[unowned self] in
-                NSWorkspace.shared.open(appModel.loggerManager.logDirectoryURL)
-            }
+            .sink{ NSWorkspace.shared.open(self.appModel.loggerManager.logDirectoryURL) }
             .store(in: &objectBag)
         
-//        cell.installVPMButton.actionPublisher
-//            .sink{[unowned self] in installVPM() }.store(in: &objectBag)
+        cell.exportLogButton.actionPublisher
+            .sink{[unowned self] in exportLogFiles() }.store(in: &objectBag)
     }
     
-    func shell(_ command: String) -> String {
-        let task = Process()
-        let pipe = Pipe()
-        
-        task.standardOutput = pipe
-        task.standardError = pipe
-        task.arguments = ["-c", command]
-        task.launchPath = "/bin/zsh"
-        task.standardInput = nil
-        task.launch()
-        
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: .utf8)!
-        
-        return output
+    private func exportLogFiles() {
+        do {
+            let savePanel = NSSavePanel()
+            savePanel.nameFieldStringValue = "\(Bundle.appid)_log.zip"
+            guard savePanel.runModal() == .OK, let url = savePanel.url else { return }
+            
+            try FileManager.default.zipItem(at: self.appModel.loggerManager.logDirectoryURL, to: url)
+        } catch {
+            appModel.logger.error(error)
+        }
     }
 }
 
 final private class DebugView: Page {
-    let openFolderButton = Button(title: "Open", image: nil)
+    let showNekoButton = Button(title: "🐱ねこ!", image: nil)
     let openLogButton = Button(title: "Open", image: nil)
-    let installVPMButton = Button(title: "Install", image: nil)
+    let exportLogButton = Button(title: "Export", image: nil)
     
     override func onAwake() {        
         self.addSection(
-            Area(title: "Project Folder", control: openFolderButton)
+            Area(title: "Show Neko", control: showNekoButton)
         )
         self.addSection(
-            Area(title: "Log Folder", control: openLogButton)
+            Area(title: "Show Log Files", control: openLogButton)
         )
         self.addSection(
-            Area(title: "Install VPM", control: installVPMButton)
+            Area(title: "Export Logs as Zip", control: exportLogButton)
         )
     }
 }

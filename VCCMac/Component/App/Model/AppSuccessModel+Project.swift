@@ -79,7 +79,7 @@ extension AppSuccessModel {
                 let progress = Progress()
                 
                 let toast = Toast(message: R.localizable.unpackingBackup())
-                toast.addProgressIndicator(progress)
+                toast.addSpinningProgressIndicator(progress)
                 toast.show(.whileDeinit)
 
                 self.projectManager.addBackupProject(url, unpackTo: unpackURL, unpackProgress: progress)
@@ -207,15 +207,17 @@ extension AppSuccessModel {
         return self.projectManager.unlinkProject(project)
             .receive(on: .main)
             .peek{[self] in
-                do {
-                    try FileManager.default.trashItem(at: projectURL, resultingItemURL: nil)
-                    NSSound.dragToTrash?.play()
+                NSWorkspace.shared.recycle([projectURL]) {[self] _, error in
+                    if let error = error {
+                        logger.log("\(error)")
+                        logger.error(R.localizable.removeProjectFailed())
+                    } else {
+                        NSSound.dragToTrash?.play()
+                    }
+                    
                     if self.selectedProject === project {
                         self.selectedProject = nil
                     }
-                } catch {
-                    logger.log("\(error)")
-                    logger.error(R.localizable.removeProjectFailed())
                 }
             }
     }
