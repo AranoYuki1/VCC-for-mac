@@ -79,7 +79,7 @@ final public class Toast: NSObject {
         guard self.isCurrentToast else { return }
         
         self.toastWindow.closeToast()
-        self.isCurrentToast = true
+        self.isCurrentToast = false
         self.showingOption = nil
         Toast.currentToast = nil
         
