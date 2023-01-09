@@ -25,14 +25,14 @@ final class ProjectIOManager {
     
     func rename(_ projectURL: URL, name: String) -> Promise<Void, Error> {
         Promise.tryAsync{
-            let renamedURL = projectURL.deletingLastPathComponent().appending(component: name)
+            let renamedURL = projectURL.deletingLastPathComponent().appendingPathComponent(name)
             try FileManager.default.moveItem(at: projectURL, to: renamedURL)
         }
     }
     
     func load(_ containerURL: URL, manager: ProjectManager) -> Promise<Project, Error> {
         Promise.tryAsync{
-            let linkURL = containerURL.appending(components: Project.projectLinkDirectoryName)
+            let linkURL = containerURL.appendingPathComponent(Project.projectLinkDirectoryName)
             let projectURL: URL
             do {
                 projectURL = try URL(resolvingAliasFileAt: linkURL)
@@ -57,9 +57,9 @@ final class ProjectIOManager {
             }
             
             let projectMeta = ProjectMeta(lastAccessDate: Date())
-            let containerURL = containerDirectoryURL.appending(components: UUID().uuidString)
-            let linkURL = containerURL.appending(components: Project.projectLinkDirectoryName)
-            let metaURL = containerURL.appending(component: Project.projectMetaFileName)
+            let containerURL = containerDirectoryURL.appendingPathComponent(UUID().uuidString)
+            let linkURL = containerURL.appendingPathComponent(Project.projectLinkDirectoryName)
+            let metaURL = containerURL.appendingPathComponent(Project.projectMetaFileName)
                         
             do {
                 try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
@@ -88,7 +88,7 @@ final class ProjectIOManager {
     private func loadProject(at projectURL: URL, containerURL: URL, manager: ProjectManager) -> Promise<Project, Error> {
         Promise.tryAsync{[self] in
             do {
-                let metaURL = containerURL.appending(component: Project.projectMetaFileName)
+                let metaURL = containerURL.appendingPathComponent(Project.projectMetaFileName)
                 let meta = try Self.decoder.decode(ProjectMeta.self, from: Data(contentsOf: metaURL))
                 
                 let project = Project(

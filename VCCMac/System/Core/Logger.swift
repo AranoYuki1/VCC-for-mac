@@ -32,7 +32,13 @@ final public class Logger {
         public let file: StaticString
         public let line: UInt
         
-        public var description: String { "\(date.formatted(date: .numeric, time: .standard)) [\(self.level)] \(self.file):\(self.line) \(self.message)" }
+        static let formatter = DateFormatter() => {
+            $0.dateFormat = "yyyy/MM/dd HH:mm"
+        }
+        
+        public var description: String {
+            "\(Log.formatter.string(from: date)) [\(self.level)] \(self.file):\(self.line) \(self.message)"
+        }
     }
     
     private var subscribers = [LoggerSubscriber]()

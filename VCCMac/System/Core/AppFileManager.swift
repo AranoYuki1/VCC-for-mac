@@ -18,14 +18,18 @@ final class AppFileManager {
     
     init() throws {
         self.rootURL = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            .appending(component: Bundle.appid)
+            .appendingPathComponent(Bundle.appid)
     }
     
     func makeDirectory(_ name: String) throws -> URL {
-        let url = rootURL.appending(components: name)
+        let url = rootURL.appendingPathComponent(name)
         if !FileManager.default.fileExists(atPath: url.path) {
             try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         }
         return url
     }
+}
+
+extension URL {
+    static let homeDirectory: URL = URL(fileURLWithPath: NSHomeDirectory())
 }

@@ -27,7 +27,7 @@ final class ProjectManifestCoder {
     init(logger: Logger) { self.logger = logger }
     
     func readManifest(at projectURL: URL) throws -> ProjectManifest? {
-        let manifestURL = projectURL.appending(component: "Packages/vpm-manifest.json")
+        let manifestURL = projectURL.appendingPathComponent("Packages/vpm-manifest.json")
         
         if !FileManager.default.fileExists(at: manifestURL) { // legacy
             return nil
@@ -44,7 +44,7 @@ final class ProjectManifestCoder {
     
     func writeManifest(_ manifest: ProjectManifest, projectURL: URL) throws {
         do {
-            let manifestURL = projectURL.appending(component: "Packages/vpm-manifest.json")
+            let manifestURL = projectURL.appendingPathComponent("Packages/vpm-manifest.json")
             try encoder.encode(manifest).write(to: manifestURL)
         } catch {
             logger.debug(String(describing: error))

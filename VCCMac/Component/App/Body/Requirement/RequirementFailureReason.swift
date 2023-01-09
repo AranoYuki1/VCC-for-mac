@@ -20,7 +20,7 @@ struct RequirementFailureReason {
             case .vpmNotValid(let message): return makeVPMNotValid(message: message, model: model)
             case .unityHubNotFound: return makeUnityHubNotFound(model: model)
             case .unityNotFound: return makeUnityNotFound(model: model)
-            case .dotnetVersionIsNotValid(let requiedVersion, let message): return makeDotnetVersionIsNotValid(requiedVersion, message, model: model)
+            case .dotnetVersionIsNotValid(let message): return makeDotnetVersionIsNotValid(message, model: model)
             case .dotnetNotFound: return makeDotnetNotInstalled(model: model)
             case .unknown(let string): return makeUnknown(string)
             }
@@ -53,7 +53,7 @@ struct RequirementFailureReason {
         )
     }
     
-    private static func makeDotnetVersionIsNotValid(_ requiedVersion: String, _ message: String, model: AppFailureModel) -> RequirementFailureReason {
+    private static func makeDotnetVersionIsNotValid(_ message: String, model: AppFailureModel) -> RequirementFailureReason {
         RequirementFailureReason(
             title: R.localizable.dotnetIsNotValid(),
             message: R.localizable.dotnetIsNotValidMessage(),
@@ -124,7 +124,7 @@ struct RequirementFailureReason {
                 }
                 let openHubButton = Button(title: R.localizable.openUnityHub()) => {
                     $0.actionPublisher
-                        .sink{ NSWorkspace.shared.openApplication(at: URL(filePath: "/Applications/Unity Hub.app/"), configuration: .init()) }
+                        .sink{ NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: "/Applications/Unity Hub.app/"), configuration: .init()) }
                         .store(in: &cell.objectBag)
                 }
                 

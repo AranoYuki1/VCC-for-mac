@@ -35,7 +35,7 @@ final class ProjectManager {
     
     func openInUnity(_ project: Project, commandSettings: VCCCommandSetting) -> Promise<Void, Error> {
         guard let projectURL = project.projectURL else { return .reject(ProjectError.projectOpenFailed) }
-        let unityURL = URL(filePath: commandSettings.pathToUnityExe)
+        let unityURL = URL(fileURLWithPath: commandSettings.pathToUnityExe)
         let catalyst = UnityCatalyst(executableURL: unityURL, logger: self.logger)
         let unityCommand = UnityCommand(catalyst: catalyst)
         
@@ -56,7 +56,7 @@ final class ProjectManager {
                 func findMigratedProject() -> String {
                     var index = 1
                     var filename = migratedProjectBasename
-                    while FileManager.default.fileExists(at: baseDirectoryURL.appending(component: filename)) {
+                    while FileManager.default.fileExists(at: baseDirectoryURL.appendingPathComponent(filename)) {
                         index += 1
                         filename = "\(migratedProjectBasename)-\(index)"
                     }
@@ -64,7 +64,7 @@ final class ProjectManager {
                 }
                 
                 let migratedProjectFilename = findMigratedProject()
-                let migratedProjectURL = baseDirectoryURL.appending(component: migratedProjectFilename)
+                let migratedProjectURL = baseDirectoryURL.appendingPathComponent(migratedProjectFilename)
                 
                 return command.migrateProject(at: projectURL, progress: progress)
                     .flatMap{ self.addProject(migratedProjectURL) }
@@ -134,7 +134,7 @@ final class ProjectManager {
     }
     
     func createProject(title: String, templete: VPMTemplate, at url: URL) -> Promise<Void, Error> {
-        let projectURL = url.appending(components: title)
+        let projectURL = url.appendingPathComponent(title)
         return command.newProject(name: title, templete: templete, at: url)
             .flatMap{ self.projectIOManager.new(projectURL, manager: self) }
             .peek{ self.projects.insert($0, at: 0) }

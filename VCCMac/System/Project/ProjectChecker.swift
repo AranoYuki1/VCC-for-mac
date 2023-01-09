@@ -55,9 +55,9 @@ final class ProjectChecker {
     }
     
     private func checkUnityProject(_ projectURL: URL) -> Result {
-        let assetsURL = projectURL.appending(component: "Assets")
-        let projectSettingsURL = projectURL.appending(component: "ProjectSettings")
-        let projectVersionURL = projectSettingsURL.appending(component: "ProjectVersion.txt")
+        let assetsURL = projectURL.appendingPathComponent("Assets")
+        let projectSettingsURL = projectURL.appendingPathComponent("ProjectSettings")
+        let projectVersionURL = projectSettingsURL.appendingPathComponent("ProjectVersion.txt")
         
         guard FileManager.default.isDirectory(assetsURL) else { return .notAUnityProject("No 'Assets' directory.") }
         guard FileManager.default.isDirectory(projectSettingsURL) else { return .notAUnityProject("No 'ProjectSettings' directory.") }

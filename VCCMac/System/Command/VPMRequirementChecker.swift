@@ -24,7 +24,7 @@ final class VPMRequirementChecker {
         enum FailureType {
             case vpmNotFound(URL)
             case vpmNotValid(message: String)
-            case dotnetVersionIsNotValid(requiedVersion: String, message: String)
+            case dotnetVersionIsNotValid(message: String)
             case dotnetNotFound
             case unityHubNotFound
             case unityNotFound
@@ -98,8 +98,7 @@ final class VPMRequirementChecker {
                         let dotnetNotFoundError = message.contains("You must install .NET to run this application.")
                         
                         if dotnetVersionError {
-                            let requiredVersion = message.firstMatch(of: /Framework: (.*)/)?.0 ?? "Unkown"
-                            failureReasons.append(.dotnetVersionIsNotValid(requiedVersion: String(requiredVersion), message: message))
+                            failureReasons.append(.dotnetVersionIsNotValid(message: message))
                         } else if dotnetNotFoundError {
                             failureReasons.append(.dotnetNotFound)
                         } else {
@@ -123,7 +122,7 @@ final class VPMRequirementChecker {
 private struct DotnetCatalyst: CommandCatalyst {
     var logger: Logger
     
-    var executableURL: URL { URL(filePath: "/usr/local/share/dotnet/dotnet") }
+    var executableURL: URL { URL(fileURLWithPath: "/usr/local/share/dotnet/dotnet") }
     
     init(logger: Logger) {
         self.logger = logger

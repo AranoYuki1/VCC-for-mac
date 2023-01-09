@@ -42,15 +42,20 @@ final class VPMCommand {
 
     func getProjectType(at url: URL) -> Promise<ProjectType, Error> {
         catalyst.run(["check", "project", url.path])
-            .tryMap{ result in
-                if result.starts(with: /\[\d\d:\d\d:\d\d ERR\]/) || !result.contains(/Project is/) {
+            .tryMap{ _result in
+                let result = _result as NSString
+                                
+                if !result.matches(#"^\[\d\d:\d\d:\d\d ERR\]"#).isEmpty || result.matches("Project is").isEmpty {
                     return .notUnityProject
                 }
-                guard let projectType = result.firstMatch(of: /Project is (.*)/)?.1 else {
+                
+                guard let projectTypeMatch = result.matches("Project is (.*)").first else {
                     throw VPMError.checkFailed("Cannot get project type.")
                 }
                 
-                let udonsharpURL = url.appending(component: "Packages/com.vrchat.udonsharp")
+                let projectType = result.substring(with: projectTypeMatch.range(at: 1))
+                
+                let udonsharpURL = url.appendingPathComponent("Packages/com.vrchat.udonsharp")
                 let udonsharpExists = FileManager.default.fileExists(at: udonsharpURL)
                         
                 switch projectType {
@@ -95,13 +100,21 @@ final class VPMCommand {
         catalyst.run(["list", "templates"])
             .map{ result in
                 let list = result.split(separator: "\n")
-                    .compactMap{ $0.firstMatch(of: /\[\d\d:\d\d:\d\d INF\] (.*): (\/.+)/) }
+                    .map{ String($0) as NSString }
+                    .compactMap{ str -> (name: String, url: String)? in
+                        let matches = str.matches(#"\[\d\d:\d\d:\d\d INF\] (.*): (\/.+)"#)
+                        guard let match = matches.first else { return nil }
+                        let name = str.substring(with: match.range(at: 1))
+                        let url = str.substring(with: match.range(at: 2))
+                        
+                        return (name: name, url: url)
+                    }
                 
                 var templates = [VPMTemplate]()
                 for template in list {
                     templates.append(VPMTemplate(
-                        name: String(template.1),
-                        url: URL(filePath: String(template.2))
+                        name: String(template.name),
+                        url: URL(fileURLWithPath: String(template.url))
                     ))
                 }
                 
@@ -122,5 +135,11 @@ final class VPMCommand {
                     throw VPMError.checkFailed("Unity is not installed.")
                 }
             }
+    }
+}
+
+extension NSString {
+    func matches(_ regex: String) -> [NSTextCheckingResult] {
+        try! NSRegularExpression(pattern: regex).matches(in: self as String, range: .init(location: 0, length: self.length))
     }
 }

@@ -26,9 +26,9 @@ final class PackageManager {
         
         
         self.officialRepogitory = repogitoryLoader
-            .load(URL.homeDirectory.appending(component: "/.local/share/VRChatCreatorCompanion/Repos/vrc-official.json"))
+            .load(URL.homeDirectory.appendingPathComponent("/.local/share/VRChatCreatorCompanion/Repos/vrc-official.json"))
         self.curatedRepogitory = repogitoryLoader
-            .load(URL.homeDirectory.appending(component: "/.local/share/VRChatCreatorCompanion/Repos/vrc-curated.json"))
+            .load(URL.homeDirectory.appendingPathComponent("/.local/share/VRChatCreatorCompanion/Repos/vrc-curated.json"))
     }
     
     func installedPackages(for project: Project) -> Promise<[Package], Error> {
@@ -66,7 +66,7 @@ final class PackageManager {
             let topVersion = package.versions[0]
             let identifier = topVersion.name
             
-            let packageFileURL = projectURL.appending(component: "Packages/\(identifier)")
+            let packageFileURL = projectURL.appendingPathComponent("Packages/\(identifier)")
             try FileManager.default.removeItem(at: packageFileURL)
             
             var manifest = manifest

@@ -25,12 +25,12 @@ final class ProjectBackupManager {
         }
     }
     
-    private let temporaryDirectory = URL(filePath: NSTemporaryDirectory())
-        .appending(component: "unpacking_backup")
+    private let temporaryDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("unpacking_backup")
     
     func loadBackup(_ backupURL: URL, to url: URL, progress: Progress) -> Promise<URL, Error> {
         Promise.tryAsync{
-            let unpackDirectory = self.temporaryDirectory.appending(component: UUID().uuidString)
+            let unpackDirectory = self.temporaryDirectory.appendingPathComponent(UUID().uuidString)
             
             try FileManager.default.createDirectory(at: unpackDirectory, withIntermediateDirectories: true)
             defer { try? FileManager.default.removeItem(at: unpackDirectory) }
@@ -43,7 +43,7 @@ final class ProjectBackupManager {
             
             let projectURL = contents[0]
             let projectTitle = projectURL.lastPathComponent
-            let destinationURL = url.appending(component: projectTitle)
+            let destinationURL = url.appendingPathComponent(projectTitle)
             
             try FileManager.default.moveItem(at: projectURL, to: destinationURL)
             

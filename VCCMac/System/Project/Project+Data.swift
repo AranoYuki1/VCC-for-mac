@@ -52,7 +52,7 @@ final class Project {
     @Observable var linkURL: URL
     @Observable var projectURL: URL?
     
-    var metaFileURL: URL { containerURL.appending(component: Project.projectMetaFileName) }
+    var metaFileURL: URL { containerURL.appendingPathComponent(Project.projectMetaFileName) }
     
     private unowned let projectManager: ProjectManager
     
@@ -80,7 +80,7 @@ final class Project {
     }
     
     private static func loadEntity(at containerURL: URL) -> (linkURL: URL, projectURL: URL?, title: String) {
-        let linkURL = containerURL.appending(component: Project.projectLinkDirectoryName)
+        let linkURL = containerURL.appendingPathComponent(Project.projectLinkDirectoryName)
         let projectURL = try? URL(resolvingAliasFileAt: linkURL)
         let title = projectURL?.lastPathComponent ?? "Broken Project"
         

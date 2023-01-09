@@ -12,7 +12,7 @@ final class ShellCatalyst: CommandCatalyst {
     let logger: Logger
     
     init(logger: Logger) {
-        self.executableURL = URL(filePath: "/bin/sh")
+        self.executableURL = URL(fileURLWithPath: "/bin/sh")
         self.logger = logger
     }
 }

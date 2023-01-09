@@ -5,7 +5,7 @@
 //  Created by yuki on 2023/01/02.
 //
 
-import Foundation
+import CoreUtil
 
 struct LoggerManagerError: LocalizedError {
     let errorDescription: String
@@ -29,7 +29,7 @@ final class LoggerManager {
     }
     
     func setup(_ logger: Logger) throws {
-        let logFileURL = logDirectoryURL.appending(component: logFilename)
+        let logFileURL = logDirectoryURL.appendingPathComponent(logFilename)
         if !FileManager.default.fileExists(at: logFileURL) {
             try Data().write(to: logFileURL)
         }
@@ -56,22 +56,24 @@ final class LoggerManager {
     }
     
     private static func makeUniqueLogFilename() -> String {
-        enum __ { static let ltime = Date().formatted(date: .numeric, time: .standard)
-            .replacingOccurrences(of: ":", with: "-")
-            .replacingOccurrences(of: "/", with: "-")
+        enum __ {
+            static let formatter = DateFormatter() => {
+                $0.dateFormat = "yyyy-MM-dd-HH-mm"
+            }
+            static let ltime = formatter.string(from: Date())
         }
         
         return "\(Bundle.appid) \(__.ltime).log"
     }
     
     private static func getLogDirectoryURL() -> URL {
-        let fallbackDirectoryURL = URL.homeDirectory.appending(component: "Library/Logs")
+        let fallbackDirectoryURL = URL.homeDirectory.appendingPathComponent("Library/Logs")
         guard let libraryURL = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first else {
             return fallbackDirectoryURL
         }
         
-        let logDirectory = libraryURL.appending(component: "Logs")
-        let applicationLogDirectoryURL = logDirectory.appending(component: Bundle.appid)
+        let logDirectory = libraryURL.appendingPathComponent("Logs")
+        let applicationLogDirectoryURL = logDirectory.appendingPathComponent(Bundle.appid)
         
         try? FileManager.default.createDirectory(at: applicationLogDirectoryURL, withIntermediateDirectories: true)
         

@@ -19,7 +19,7 @@ final class VCCCommandSetting {
         didSet { self.dictionary["pathToUnityHub"] = pathToUnityHub; save() }
     }
     
-    let settingURL = URL.homeDirectory.appending(path: ".local/share/VRChatCreatorCompanion/settings.json")
+    let settingURL = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".local/share/VRChatCreatorCompanion/settings.json")
     
     weak var appModel: AppModel?
     
@@ -44,14 +44,14 @@ final class VCCCommandSetting {
     }
     
     private func findPathToUnityExe() throws -> URL {
-        let contentsURL = URL(filePath: "/Applications/Unity/Hub/Editor")
+        let contentsURL = URL(fileURLWithPath: "/Applications/Unity/Hub/Editor")
         guard FileManager.default.isDirectory(contentsURL) else {
             throw VCCCommandSettingError(description: "No Unity Editor found.")
         }
         let contents = try FileManager.default.contentsOfDirectory(at: contentsURL, includingPropertiesForKeys: nil)
         
         for content in contents where content.lastPathComponent.contains("2019") {
-            let unityExecutableURL = content.appending(component: "Unity.app/Contents/MacOS/Unity")
+            let unityExecutableURL = content.appendingPathComponent("Unity.app/Contents/MacOS/Unity")
             
             if FileManager.default.isExecutableFile(atPath: unityExecutableURL.path) {
                 return unityExecutableURL
@@ -70,14 +70,14 @@ final class VCCCommandSetting {
                 "pathToUnityHub": "/Applications/Unity Hub.app/Contents/MacOS/Unity Hub",
                 "userProjects": [],
                 "unityEditors": [],
-                "defaultProjectPath": URL.homeDirectory.appending(component: ".local/share/VRChatProjects").path,
+                "defaultProjectPath": URL.homeDirectory.appendingPathComponent(".local/share/VRChatProjects").path,
                 "lastUIState": 0,
                 "skipUnityAutoFind": false,
                 "userPackageFolders": [],
                 "windowSize": 0,
                 "skipRequirements": false,
                 "allowPii": false,
-                "projectBackupPath": URL.homeDirectory.appending(component: ".local/share/VRChatCreatorCompanion/Project Backups").path,
+                "projectBackupPath": URL.homeDirectory.appendingPathComponent(".local/share/VRChatCreatorCompanion/Project Backups").path,
                 "showPrereleasePackages": false,
                 "selectedProviders": 3,
                 "userRepos": []

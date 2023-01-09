@@ -14,6 +14,6 @@ final class VPMCatalyst: CommandCatalyst {
     
     init(logger: Logger) {
         self.logger = logger
-        self.executableURL = URL.homeDirectory.appending(path: ".dotnet/tools/vpm")
+        self.executableURL = URL.homeDirectory.appendingPathComponent(".dotnet/tools/vpm")
     }
 }
