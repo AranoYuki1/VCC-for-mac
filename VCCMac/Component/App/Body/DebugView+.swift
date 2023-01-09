@@ -24,7 +24,10 @@ final class __DebugViewController: NSViewController {
                     NSColor.clear, .systemRed, .systemGreen, .systemGreen, .systemBlue, .systemOrange, .systemYellow, .systemBrown, .systemPink, .systemPurple
                 ].map{ $0.withAlphaComponent(0.2) }
                 Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-                    if progress.isFinished { timer.invalidate(); toast.close() }
+                    if progress.isFinished {
+                        timer.invalidate(); toast.close()
+                        Toast(message: "ねこでした。").show()
+                    }
                     label.stringValue += "Nya!"
                     progress.completedUnitCount += 1
                     toast.color = colors[Int(progress.completedUnitCount) % colors.count]
