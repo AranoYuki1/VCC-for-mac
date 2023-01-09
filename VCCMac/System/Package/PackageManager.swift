@@ -24,10 +24,11 @@ final class PackageManager {
         let repogitoryLoader = RepogitoryLoader()
         self.repogitoryLoader = repogitoryLoader
         
+        
         self.officialRepogitory = repogitoryLoader
-            .load(URL(filePath: "/Users/yuki/.local/share/VRChatCreatorCompanion/Repos/vrc-official.json"))
+            .load(URL.homeDirectory.appending(component: "/.local/share/VRChatCreatorCompanion/Repos/vrc-official.json"))
         self.curatedRepogitory = repogitoryLoader
-            .load(URL(filePath: "/Users/yuki/.local/share/VRChatCreatorCompanion/Repos/vrc-curated.json"))
+            .load(URL.homeDirectory.appending(component: "/.local/share/VRChatCreatorCompanion/Repos/vrc-curated.json"))
     }
     
     func installedPackages(for project: Project) -> Promise<[Package], Error> {
