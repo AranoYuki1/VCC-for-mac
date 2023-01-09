@@ -97,13 +97,13 @@ extension CommandCatalyst {
 }
 
 
-enum CatalystError: Error, CustomStringConvertible {
+enum CatalystError: LocalizedError {
     case binaryNotFound(URL)
     case binaryNotExecutable(URL)
     case failToStartCommand(Error)
     case commandExitWithNonZeroCode(code: Int32, message: String)
     
-    var description: String {
+    var errorDescription: String? {
         switch self {
         case .binaryNotExecutable(let url):
             return "Binary at '\(url.path)' is not excutable."

@@ -47,7 +47,7 @@ final public class Logger {
         self.sendLog(message, for: .debug, file: file, line: line)
     }
     public func debug(_ error: Error, file: StaticString = #fileID, line: UInt = #line) {
-        self.sendLog(error.localizedDescription, for: .debug, file: file, line: line)
+        self.sendLog("\(error)", for: .debug, file: file, line: line)
     }
     public func info(_ message: String, file: StaticString = #fileID, line: UInt = #line) {
         self.sendLog(message, for: .info, file: file, line: line)
@@ -62,7 +62,7 @@ final public class Logger {
         self.sendLog(message, for: .error, file: file, line: line)
     }
     public func error(_ error: Error, file: StaticString = #fileID, line: UInt = #line) {
-        self.sendLog(error.localizedDescription, for: .error, file: file, line: line)
+        self.sendLog("\(error)", for: .error, file: file, line: line)
     }
     
     private func sendLog(_ message: String, for level: Level, file: StaticString, line: UInt) {
