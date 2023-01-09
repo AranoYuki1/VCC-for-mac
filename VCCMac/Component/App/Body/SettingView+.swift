@@ -88,7 +88,7 @@ final private class SettingView: Page {
             Area(icon: R.image.paramators(), title: R.localizable.appTheme(), message: R.localizable.selectWhichAppThemeToDisplay(), control: appearancePicker)
         )
         self.addSection(
-            Area(icon: R.image.paramators(), title: R.localizable.debug(), message: R.localizable.toggleDebugState(), control: debugSwitch)
+            Area(icon: R.image.debug(), title: R.localizable.debug(), message: R.localizable.toggleDebugState(), control: debugSwitch)
         )
         
         self.addSection(H4Title(text: "settings.json"))

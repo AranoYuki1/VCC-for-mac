@@ -49,6 +49,21 @@ final class __DebugViewController: NSViewController {
         
         cell.exportLogButton.actionPublisher
             .sink{[unowned self] in exportLogFiles() }.store(in: &objectBag)
+        
+        cell.clearLogButton.actionPublisher
+            .sink{[unowned self] in clearLogFiles() }.store(in: &objectBag)
+    }
+    
+    private func clearLogFiles() {
+        do {
+            let files = try FileManager.default.contentsOfDirectory(at: self.appModel.loggerManager.logDirectoryURL, includingPropertiesForKeys: nil)
+            
+            for file in files {
+                _ = NSWorkspace.shared.recyclePromise([file], playSoundEffect: true)
+            }
+        } catch {
+            appModel.logger.error(error)
+        }
     }
     
     private func exportLogFiles() {
@@ -68,16 +83,35 @@ final private class DebugView: Page {
     let showNekoButton = Button(title: "🐱ねこ!", image: nil)
     let openLogButton = Button(title: "Open", image: nil)
     let exportLogButton = Button(title: "Export", image: nil)
+    let clearLogButton = Button(title: "Clear", image: nil)
     
     override func onAwake() {        
-        self.addSection(
-            Area(title: "Show Neko", control: showNekoButton)
+        self.addSection2(
+            Section(title: "Test", items: [
+                Area(title: "Show Neko", message: "Show Neko Toast as Test of Toast", control: showNekoButton)
+            ]),
+            Section(title: "Log", items: [
+                Area(icon: R.image.folder(), title: "Show Log Files", message: "Open log files directory.", control: openLogButton),
+                Area(icon: R.image.export(), title: "Export Logs", message: "Export log files as zip.", control: exportLogButton),
+                Area(icon: R.image.clear_circle(), title: "Clear Log files", message: "20 or more files automatically deleted.", control: clearLogButton)
+            ])
         )
-        self.addSection(
-            Area(title: "Show Log Files", control: openLogButton)
-        )
-        self.addSection(
-            Area(title: "Export Logs as Zip", control: exportLogButton)
-        )
+    }
+}
+
+extension NSWorkspace {
+    public func recyclePromise(_ urls: [URL], playSoundEffect: Bool = false) -> Promise<[URL: URL], Error> {
+        Promise{ resolve, reject in
+            self.recycle(urls) { table, error in
+                if let error = error {
+                    reject(error)
+                } else {
+                    if playSoundEffect {
+                        NSSound.dragToTrash?.play()
+                    }
+                    resolve(table)
+                }
+            }
+        }
     }
 }
