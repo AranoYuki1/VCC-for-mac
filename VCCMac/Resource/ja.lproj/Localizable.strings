@@ -48,19 +48,19 @@
 
 // AppModel + Project
 "Creating Project..." = "プロジェクトを作成しています...";
-"Project created." = "プロジェクトを作成ししました。";
+"Project created." = "プロジェクトを作成しました。";
 "Select a Folder to Unpack Backup." = "バックアップを展開するフォルダーを選んでください。";
 "Unpacking Backup..." = "バックアップを展開しています...";
 "Unpack Backup Done." = "バックアップを展開しました。";
 "Add Project Failed." = "プロジェクトを追加できませんでした。";
 "Backup Name" = "バックアップの名称";
 "Backup Project Failed." = "プロジェクトをバックアップできませんでした。";
-"Reload Project Failed." = "プロジェクトをリ再読み込みできませんでした。";
+"Reload Project Failed." = "プロジェクトを再読み込みできませんでした。";
 "Remove Project Failed." = "プロジェクトを削除できませんでした。";
 "Cannot Find Project." = "プロジェクトが見つかりません。";
 "Rename Project Failed." = "プロジェクトの名称を変更できませんでした。";
 "Do you want to move project to the Trash, or only remove the reference to it?" = "\"%@\"をゴミ箱に移動しますか?もしくはVCCからのリンクを削除しますか?";
-"This operation cannot be undone." = "プロジェクトをはゴミ箱に移動されます。";
+"This operation cannot be undone." = "プロジェクトはゴミ箱に移動されます。この操作は元に戻すことができません。";
 "Move to Trash" = "ゴミ箱に入れる";
 "Remove Reference" = "リンクを削除";
 
