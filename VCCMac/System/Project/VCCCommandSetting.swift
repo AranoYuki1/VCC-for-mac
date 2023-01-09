@@ -39,7 +39,7 @@ final class VCCCommandSetting {
     }
     
     public func autoFixPathToUnityExe() throws {
-        guard !FileManager.default.isExecutableFile(atPath: pathToUnityExe) || !pathToUnityHub.contains("Unity.app/Contents/MacOS/Unity") else { return }
+        guard !(FileManager.default.isExecutableFile(atPath: pathToUnityExe) && pathToUnityHub.contains("Unity.app/Contents/MacOS/Unity")) else { return }
         self.pathToUnityExe = try self.findPathToUnityExe().path
     }
     
