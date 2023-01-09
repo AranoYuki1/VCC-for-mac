@@ -1,6 +1,6 @@
 # VCC for mac
 
-macOS Client of VRChat Creator Companion
+Unofficial macOS Client of VRChat Creator Companion
 
 [日本語版READMEはこちら](https://github.com/AranoYuki1/VCC-for-mac/blob/main/README_ja.md)
 
