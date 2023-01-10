@@ -35,10 +35,6 @@ final class ProjectHeaderView: NSLoadVisualEffectView {
         
         stackView.addArrangedSubview(reloadButton)
         stackView.addArrangedSubview(VSeparatorView())
-        stackView.addArrangedSubview(NSTextField(labelWithString: R.localizable.filterBy()) => {
-            $0.textColor = .secondaryLabelColor
-            $0.font = .systemFont(ofSize: 10.5, weight: .medium)
-        })
         stackView.addArrangedSubview(projectTypePicker)
         stackView.addArrangedSubview(VSeparatorView())
         stackView.addArrangedSubview(NSTextField(labelWithString: R.localizable.type()) => {

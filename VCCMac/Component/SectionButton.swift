@@ -10,6 +10,7 @@ import CoreUtil
 class SectionButton: NSLoadButton {
     override var title: String { didSet { updateTitle()  } }
     override var image: NSImage? { didSet { iconView.image = image } }
+    override var isEnabled: Bool { didSet { self.alphaValue = isEnabled ? 1 : 0.5 } }
     
     private let titleLabel = NSTextField(labelWithString: "Paste".localized())
     private let iconView = NSImageView(image: R.image.export())

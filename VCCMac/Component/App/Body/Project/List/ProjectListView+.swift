@@ -123,7 +123,8 @@ extension ProjectListViewController: NSTableViewDataSource, NSTableViewDelegate 
         project.formattedDatep
             .sink{[unowned cell] in cell.dateLabel.stringValue = $0 }.store(in: &cell.objectBag)
         project.$projectType
-            .sink{[unowned cell] type in
+            .sink{[weak cell] type in
+                guard let cell = cell else { return }
                 cell.typeLabel.isLoading = true
                 cell.iconView.isLoading = true
                 _ = type.peek{

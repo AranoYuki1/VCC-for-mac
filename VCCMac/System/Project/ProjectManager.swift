@@ -9,6 +9,7 @@ import CoreUtil
 
 final class ProjectManager {
     @Observable private(set) var projects = [Project]()
+    @Observable private(set) var isReloading = false
     
     let containerDirectoryURL: URL
     
@@ -59,14 +60,12 @@ final class ProjectManager {
     }
     
     private func migrateProjectInplace(_ project: Project, projectURL: URL, progress: PassthroughSubject<String, Never>) -> Promise<Void, Error> {
-        print(#function)
-        return command.migrateProject(at: projectURL, progress: progress, inplace: false)
+        return command.migrateProject(at: projectURL, progress: progress, inplace: true)
             .flatMap{ project.reload() }
             .eraseToVoid()
     }
     
     private func migrateProjectCopy(_ project: Project, projectURL: URL, progress: PassthroughSubject<String, Never>) -> Promise<Void, Error> {
-        print(#function)
         let baseDirectoryURL = projectURL.deletingLastPathComponent()
         let migratedProjectBasename = projectURL.lastPathComponent + "-Migrated"
         
@@ -118,7 +117,11 @@ final class ProjectManager {
     }
     
     func reloadProjects() -> Promise<Void, Error> {
-        asyncHandler{[self] wait in
+        if self.isReloading { return .fullfill() }
+        
+        self.isReloading = true
+        
+        return asyncHandler{[self] wait in
             let containerURLs = try FileManager.default.contentsOfDirectory(at: containerDirectoryURL, includingPropertiesForKeys: nil)
             
             var projects = [Project]()
@@ -146,6 +149,10 @@ final class ProjectManager {
             if errorCount != 0 {
                 logger.error("\(errorCount) projects has errors & removed.")
             }
+        }
+        .peek{
+            Promise.combineAll(self.projects.map{ $0.projectType })
+                .finally{ self.isReloading = false }
         }
     }
     

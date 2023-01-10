@@ -83,29 +83,24 @@ final private class SettingView: Page {
     
     let openSettingJsonButton = Button(title: R.localizable.openSettingsJson())
     
-    override func onAwake() {        
-        self.addSection(
-            Area(icon: R.image.paramators(), title: R.localizable.appTheme(), message: R.localizable.selectWhichAppThemeToDisplay(), control: appearancePicker)
-        )
-        self.addSection(
+    override func onAwake() {
+        self.addSection2(
+            Area(icon: R.image.paramators(), title: R.localizable.appTheme(), message: R.localizable.selectWhichAppThemeToDisplay(), control: appearancePicker),
             Area(icon: R.image.debug(), title: R.localizable.debug(), message: R.localizable.toggleDebugState(), control: debugSwitch)
         )
         
-        self.addSection(H4Title(text: "settings.json"))
-        self.addSection(Section(title: "pathToUnityExe", items: [NSStackView() => {
-            $0.addArrangedSubview(pathToUnityExeField)
-            $0.addArrangedSubview(pathToUnityExeButton)
-        }]))
-        self.addSection(Section(title: "pathToUnityHub", items: [NSStackView() => {
-            $0.addArrangedSubview(pathToUnityHubField)
-            $0.addArrangedSubview(pathToUnityHubButton)
-        }]))
-        
-        self.addSection(NSView() => {
-            $0.snp.makeConstraints{ make in
-                make.height.equalTo(16)
-            }
-        })
-        self.addSection(openSettingJsonButton)
+        self.addSection(
+            Section(title: "setting.json", items: [
+                NSStackView() => {
+                    $0.addArrangedSubview(pathToUnityExeField)
+                    $0.addArrangedSubview(pathToUnityExeButton)
+                },
+                NSStackView() => {
+                    $0.addArrangedSubview(pathToUnityHubField)
+                    $0.addArrangedSubview(pathToUnityHubButton)
+                },
+                openSettingJsonButton
+            ])
+        )
     }
 }
