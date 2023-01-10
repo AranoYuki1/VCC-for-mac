@@ -142,7 +142,7 @@
 "Open UnityHub" = "UnityHubを開く";
 
 "VCC is not Valid" = "VCCが不明な理由により使用できません。";
-"VCC is not Valid.message" = "VCCバイナリは不正な状態です。Dotnetから再インストールしてください。";
+"VCC is not Valid.message" = "VCCバイナリは不正な状態です。.NETから再インストールしてください。";
 
 "VCC is not installed" = "VPMがインストールされていません。";
 "VCC is not installed.message" = "
@@ -153,12 +153,12 @@
 "VPM command installed." = "VPMをインストールしました。";
 "Copy Code & Open Terminal" = "コピーしてターミナルを開く";
 
-"Dotnet is not installed." = "Dotnetがインストールされていません。";
-"Dotnet is not installed.message" = "Dotnetがインストールされていません。Microsoftのサイトからダウンロードしてインストールしてください。";
-"Download Dotnet" = "Dotnetをダウンロード";
+"Dotnet is not installed." = ".NETがインストールされていません。";
+"Dotnet is not installed.message" = ".NETがインストールされていません。Microsoftのサイトからダウンロードしてインストールしてください。";
+"Download Dotnet" = ".NETをダウンロード";
 
-"Dotnet is not valid." = "Dotnetのバージョンがマッチしません。";
-"Dotnet is not valid.message" = "VPMが必要としているバージョンのDotnetがインストールされていません。Microsoftのサイトからダウンロードしてインストールしてください。";
+"Dotnet is not valid." = ".NETのバージョンがマッチしません。";
+"Dotnet is not valid.message" = "VPMが必要としているバージョンの.NETがインストールされていません。Microsoftのサイトからダウンロードしてインストールしてください。";
 
 // Settings
 "Open settings.json" = "settings.jsonを開く";
