@@ -13,6 +13,14 @@ struct RequirementFailureReason {
     let setupHandler: (RequirementCell) -> ()
     var isRecoverable: Bool = true
     
+    private static func dotnetDownloadURL() -> URL {
+        switch ProcessorType.current() {
+        case .x86_64: return URL(string: "https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-6.0.404-macos-x64-installer")!
+        case .arm64: return URL(string: "https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-6.0.404-macos-arm64-installer")!
+        case .unknown: return URL(string: "https://dotnet.microsoft.com/download/dotnet/6.0")!
+        }
+    }
+    
     static func make(model: AppFailureModel, from checkerReason: VPMRequirementChecker.FailureReason) -> RequirementFailureReason {
         func imake() -> RequirementFailureReason {
             switch checkerReason.failureType {
@@ -39,11 +47,7 @@ struct RequirementFailureReason {
             message: R.localizable.dotnetIsNotInstalledMessage(),
             setupHandler: { cell in
                 let openTermianlButton = Button(title: R.localizable.downloadDotnet()) => {
-                    $0.actionPublisher
-                        .sink{
-                            NSWorkspace.shared.open(URL(string: "https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-6.0.404-macos-x64-installer")!)
-                        }
-                        .store(in: &cell.objectBag)
+                    $0.actionPublisher.sink{ NSWorkspace.shared.open(dotnetDownloadURL()) }.store(in: &cell.objectBag)
                 }
                 
                 cell.addArrangedSubview(NSStackView() => {
@@ -59,11 +63,7 @@ struct RequirementFailureReason {
             message: R.localizable.dotnetIsNotValidMessage(),
             setupHandler: { cell in
                 let openTermianlButton = Button(title: R.localizable.downloadDotnet()) => {
-                    $0.actionPublisher
-                        .sink{
-                            NSWorkspace.shared.open(URL(string: "https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-6.0.404-macos-x64-installer")!)
-                        }
-                        .store(in: &cell.objectBag)
+                    $0.actionPublisher.sink{ NSWorkspace.shared.open(dotnetDownloadURL()) }.store(in: &cell.objectBag)
                 }
                 
                 cell.addArrangedSubview(NSStackView() => {
