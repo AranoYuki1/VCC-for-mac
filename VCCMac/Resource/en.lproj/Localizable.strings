@@ -155,12 +155,12 @@ Or press \"Auto Fix\" to auto install VPM.
 "VPM command installed." = "VPM command installed.";
 "Copy Code & Open Terminal" = "Copy Code & Open Terminal";
 
-"Dotnet is not installed." = "Dotnet is not installed.";
-"Dotnet is not installed.message" = "Dotnet is not installed or not found in current context. Please install from Microsoft download page.";
-"Download Dotnet" = "Download Dotnet";
+"Dotnet is not installed." = ".NET is not installed.";
+"Dotnet is not installed.message" = ".NET is not installed or not found in current context. Please install from Microsoft download page.";
+"Download Dotnet" = "Download .NET";
 
-"Dotnet is not valid." = "Dotnet is not valid.";
-"Dotnet is not valid.message" = "The installed Dotnet does not match the version required by VPM.\nPlease install from Microsoft download page.";
+"Dotnet is not valid." = ".NET is not valid.";
+"Dotnet is not valid.message" = "The installed .NET does not match the version required by VPM.\nPlease install from Microsoft download page.";
 
 // Settings
 "Open settings.json" = "Open settings.json";
