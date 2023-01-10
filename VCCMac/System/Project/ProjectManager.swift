@@ -49,57 +49,43 @@ final class ProjectManager {
             .tryFlatMap{[self] projectType in
                 guard projectType.isLegacy else { return .reject(ProjectError.migrateFailed("Not a Legacy Project.")) }
                 guard let projectURL = project.projectURL else { return .reject(ProjectError.migrateFailed("Project not found.")) }
-                        
-                let baseDirectoryURL = projectURL.deletingLastPathComponent()
-                let migratedProjectBasename = projectURL.lastPathComponent + "-Migrated"
-                
-                func findMigratedProject() -> String {
-                    var index = 1
-                    var filename = migratedProjectBasename
-                    while FileManager.default.fileExists(at: baseDirectoryURL.appendingPathComponent(filename)) {
-                        index += 1
-                        filename = "\(migratedProjectBasename)-\(index)"
-                    }
-                    return filename
+             
+                if inplace {
+                    return self.migrateProjectInplace(project, projectURL: projectURL, progress: progress)
+                } else {
+                    return self.migrateProjectCopy(project, projectURL: projectURL, progress: progress)
                 }
-                
-                let migratedProjectFilename = findMigratedProject()
-                let migratedProjectURL = baseDirectoryURL.appendingPathComponent(migratedProjectFilename)
-                
-                return command.migrateProject(at: projectURL, progress: progress, inplace: inplace)
-                    .flatMap{ self.addProject(migratedProjectURL) }
-                    .eraseToVoid()
             }
     }
     
-    private func migrateProjctInplace()
+    private func migrateProjectInplace(_ project: Project, projectURL: URL, progress: PassthroughSubject<String, Never>) -> Promise<Void, Error> {
+        print(#function)
+        return command.migrateProject(at: projectURL, progress: progress, inplace: false)
+            .flatMap{ project.reload() }
+            .eraseToVoid()
+    }
     
-    private func migrateProjectCopy(_ project: Project, progress: PassthroughSubject<String, Never>, inplace: Bool) -> Promise<Void, Error> {
-        project.projectType
-            .tryFlatMap{[self] projectType in
-                guard projectType.isLegacy else { return .reject(ProjectError.migrateFailed("Not a Legacy Project.")) }
-                guard let projectURL = project.projectURL else { return .reject(ProjectError.migrateFailed("Project not found.")) }
-                        
-                let baseDirectoryURL = projectURL.deletingLastPathComponent()
-                let migratedProjectBasename = projectURL.lastPathComponent + "-Migrated"
-                
-                func findMigratedProject() -> String {
-                    var index = 1
-                    var filename = migratedProjectBasename
-                    while FileManager.default.fileExists(at: baseDirectoryURL.appendingPathComponent(filename)) {
-                        index += 1
-                        filename = "\(migratedProjectBasename)-\(index)"
-                    }
-                    return filename
-                }
-                
-                let migratedProjectFilename = findMigratedProject()
-                let migratedProjectURL = baseDirectoryURL.appendingPathComponent(migratedProjectFilename)
-                
-                return command.migrateProject(at: projectURL, progress: progress, inplace: inplace)
-                    .flatMap{ self.addProject(migratedProjectURL) }
-                    .eraseToVoid()
+    private func migrateProjectCopy(_ project: Project, projectURL: URL, progress: PassthroughSubject<String, Never>) -> Promise<Void, Error> {
+        print(#function)
+        let baseDirectoryURL = projectURL.deletingLastPathComponent()
+        let migratedProjectBasename = projectURL.lastPathComponent + "-Migrated"
+        
+        func findMigratedProject() -> String {
+            var index = 1
+            var filename = migratedProjectBasename
+            while FileManager.default.fileExists(at: baseDirectoryURL.appendingPathComponent(filename)) {
+                index += 1
+                filename = "\(migratedProjectBasename)-\(index)"
             }
+            return filename
+        }
+        
+        let migratedProjectFilename = findMigratedProject()
+        let migratedProjectURL = baseDirectoryURL.appendingPathComponent(migratedProjectFilename)
+        
+        return command.migrateProject(at: projectURL, progress: progress, inplace: false)
+            .flatMap{ self.addProject(migratedProjectURL) }
+            .eraseToVoid()
     }
     
     func addBackupProject(_ backupProjectURL: URL, unpackTo directoryURL: URL, unpackProgress: Progress) -> Promise<Void, Error> {
@@ -136,12 +122,16 @@ final class ProjectManager {
             let containerURLs = try FileManager.default.contentsOfDirectory(at: containerDirectoryURL, includingPropertiesForKeys: nil)
             
             var projects = [Project]()
+            var projectURLs = Set<URL>()
             var errorCount = 0
             
             for containerURL in containerURLs {
                 do {
                     let project = try wait | loadProject(at: containerURL)
                     guard let projectURL = project.projectURL else { throw ProjectError.loadFailed("No project entity.") }
+                    guard FileManager.default.isDirectory(projectURL) else { throw ProjectError.loadFailed("projectURL is not directory.") }
+                    guard !projectURLs.contains(projectURL) else { throw ProjectError.loadFailed("Project already added.") }
+                    projectURLs.insert(projectURL)
                     if projectURL.inTrash() { continue }
                     projects.append(project)
                 } catch { // remove broken projects

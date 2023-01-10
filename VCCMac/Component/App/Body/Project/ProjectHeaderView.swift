@@ -8,6 +8,7 @@
 import CoreUtil
 
 final class ProjectHeaderView: NSLoadVisualEffectView {
+    let reloadButton = SectionButton(image: R.image.reload())
     let projectTypePicker = EnumSelectionBar<ProjectFilterType>()
     let projectLegacyTypePicker = EnumPopupButton<ProjectLegacyFilterType>()
     let openButton = Button(title: R.localizable.open()) => { $0.backgroundColor = .systemGray }
@@ -32,11 +33,14 @@ final class ProjectHeaderView: NSLoadVisualEffectView {
             make.edges.equalToSuperview()
         }
         
+        stackView.addArrangedSubview(reloadButton)
+        stackView.addArrangedSubview(VSeparatorView())
         stackView.addArrangedSubview(NSTextField(labelWithString: R.localizable.filterBy()) => {
             $0.textColor = .secondaryLabelColor
             $0.font = .systemFont(ofSize: 10.5, weight: .medium)
         })
         stackView.addArrangedSubview(projectTypePicker)
+        stackView.addArrangedSubview(VSeparatorView())
         stackView.addArrangedSubview(NSTextField(labelWithString: R.localizable.type()) => {
             $0.textColor = .secondaryLabelColor
             $0.font = .systemFont(ofSize: 10.5, weight: .medium)

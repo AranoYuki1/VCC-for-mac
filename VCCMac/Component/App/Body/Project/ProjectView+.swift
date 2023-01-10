@@ -46,6 +46,8 @@ final class ProjectViewController: NSViewController {
             .sink{[unowned self] in self.appSuccessModel?.filterType = $0 }.store(in: &objectBag)
         self.cell.header.projectLegacyTypePicker.itemPublisher
             .sink{[unowned self] in self.appSuccessModel?.legacyFilterType = $0 }.store(in: &objectBag)
+        self.cell.header.reloadButton.actionPublisher
+            .sink{[unowned self] in self.appSuccessModel?.projectManager.reloadProjects().catch{ Toast(error: $0).show() } }.store(in: &objectBag)
         
         self.appSuccessModelPublisher.map{ $0.$filterType }.switchToLatest()
             .sink{[unowned self] in self.cell.header.projectTypePicker.selectedItem = $0 }.store(in: &objectBag)

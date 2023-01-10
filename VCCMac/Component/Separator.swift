@@ -29,3 +29,25 @@ final class SeparatorView: NSLoadView {
     }
 }
 
+final class VSeparatorView: NSLoadView {
+    private let separatorLayer = CALayer.animationDisabled()
+    
+    public override func layout() {
+        super.layout()
+        self.separatorLayer.frame = bounds
+    }
+    
+    public override func updateLayer() {
+        self.separatorLayer.backgroundColor = NSColor.textColor.withAlphaComponent(0.1).cgColor
+    }
+    
+    override public func onAwake() {
+        self.wantsLayer = true
+        self.layer?.addSublayer(separatorLayer)
+        
+        self.snp.makeConstraints{ make in
+            make.width.equalTo(1)
+        }
+    }
+}
+
