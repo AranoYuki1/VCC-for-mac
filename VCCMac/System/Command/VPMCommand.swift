@@ -98,7 +98,7 @@ final class VPMCommand {
         catalyst.run(["install", "templates"]).eraseToVoid()
     }
     
-    func listTemplates()-> Promise<[VPMTemplate], Error> {
+    func listTemplates() -> Promise<[VPMTemplate], Error> {
         catalyst.run(["list", "templates"])
             .map{ result in
                 let list = result.split(separator: "\n")

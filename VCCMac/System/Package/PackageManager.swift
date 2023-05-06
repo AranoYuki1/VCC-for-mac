@@ -24,7 +24,6 @@ final class PackageManager {
         let repogitoryLoader = RepogitoryLoader()
         self.repogitoryLoader = repogitoryLoader
         
-        
         self.officialRepogitory = repogitoryLoader
             .load(URL.homeDirectory.appendingPathComponent("/.local/share/VRChatCreatorCompanion/Repos/vrc-official.json"))
         self.curatedRepogitory = repogitoryLoader
@@ -134,7 +133,7 @@ private struct RepogitoryJSON: Codable {
 }
 
 private struct PackageJSON: Codable {
-    let versions: [String: PackageVersion]
+    var versions: [String: PackageVersion] = [:]
     var displayName: String { versions.values.first?.displayName ?? "No Name" }
 }
 
@@ -144,7 +143,7 @@ final class PackageVersion: Codable {
     let version: String
     let unity: String?
     let description: String
-    let repo: URL
+    let repo: URL?
     let url: URL
 }
 

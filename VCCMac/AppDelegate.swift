@@ -19,7 +19,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.windows.first?.contentViewController?.appModel.reloadPublisher.send()
     }
     
-    func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
+    func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {        
         return true
     }
     

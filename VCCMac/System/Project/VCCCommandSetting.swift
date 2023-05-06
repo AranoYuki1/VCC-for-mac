@@ -35,7 +35,16 @@ final class VCCCommandSetting {
     
     public func autoFixPathToUnityHub() throws {
         guard !FileManager.default.isExecutableFile(atPath: pathToUnityHub) else { return }
-        self.pathToUnityHub = "/Applications/Unity Hub.app/Contents/MacOS/Unity Hub"
+        self.pathToUnityHub = try findPathToUnityHub().path
+    }
+    
+    private func findPathToUnityHub() throws -> URL {
+        let url = URL(fileURLWithPath: "/Applications/Unity Hub.app/Contents/MacOS/Unity Hub")
+        if FileManager.default.isExecutableFile(atPath: url.path) {
+            return url
+        }
+        
+        throw VCCCommandSettingError(description: "Cannot Find Unity Hub.")
     }
     
     public func autoFixPathToUnityExe() throws {
@@ -68,19 +77,19 @@ final class VCCCommandSetting {
             self.dictionary = [
                 "pathToUnityExe": "",
                 "pathToUnityHub": "/Applications/Unity Hub.app/Contents/MacOS/Unity Hub",
-                "userProjects": [],
-                "unityEditors": [],
+                "userProjects": [Any](),
+                "unityEditors": [Any](),
                 "defaultProjectPath": URL.homeDirectory.appendingPathComponent(".local/share/VRChatProjects").path,
                 "lastUIState": 0,
                 "skipUnityAutoFind": false,
-                "userPackageFolders": [],
+                "userPackageFolders": [Any](),
                 "windowSize": 0,
                 "skipRequirements": false,
                 "allowPii": false,
                 "projectBackupPath": URL.homeDirectory.appendingPathComponent(".local/share/VRChatCreatorCompanion/Project Backups").path,
                 "showPrereleasePackages": false,
                 "selectedProviders": 3,
-                "userRepos": []
+                "userRepos": [Any]()
             ]
         }
         

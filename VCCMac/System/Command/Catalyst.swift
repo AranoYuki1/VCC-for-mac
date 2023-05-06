@@ -20,7 +20,6 @@ protocol CommandCatalyst {
     var logger: Logger { get }
 }
 
-
 extension CommandCatalyst {
     @discardableResult
     func run(_ argumenets: [String], interactiveStyle: CatalystInteractiveStyle = .none) -> Promise<String, Error> {
