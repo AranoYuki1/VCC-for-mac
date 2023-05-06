@@ -21,6 +21,7 @@ final class AppModel {
     @RestorableState("appearance") var appearanceType: AppearanceType = .useSystemSettings
     @RestorableState("tool") var toolIdentifier = ""
     @RestorableState("debug") var debug = false { willSet { sidebarManager.showDebugItems = newValue } }
+    @RestorableState("localPackageURL") var localPackageURL = AppFileManager.makeDirectory("local_package")
     
     @Observable var tool: Tool = .project { didSet { toolIdentifier = tool.identifier } }
     

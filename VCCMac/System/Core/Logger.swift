@@ -81,6 +81,15 @@ final public class Logger {
     }
 }
 
+extension Promise {
+    @discardableResult
+    func `catch`(by logger: Logger) -> Promise<Void, Never> {
+        self.catch{
+            logger.error(String(describing: $0))
+        }
+    }
+}
+
 extension Logger {
     public func subscribe(minimumLevel: Level, fileHandle: FileHandle) {
         self.subscribe(FileHandleLoggerSubscriber(minimumLevel: minimumLevel, fileHandle: fileHandle))

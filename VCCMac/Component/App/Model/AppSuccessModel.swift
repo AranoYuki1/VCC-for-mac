@@ -63,6 +63,7 @@ final class AppSuccessModel {
     let command: VPMCommand
     let projectManager: ProjectManager
     let packageManager: PackageManager
+    let localPackageManager: LocalPackageManager
     let logger: Logger
     
     @Observable var selectedProject: Project?
@@ -77,6 +78,8 @@ final class AppSuccessModel {
         self.projectManager = projectManager
         self.packageManager = packageManager
         self.logger = logger
+        
+        self.localPackageManager = LocalPackageManager(appModel: appModel)
     }
 }
 

@@ -75,3 +75,8 @@ extension Double: RawRepresentable {
     public var rawValue: Self { self }
     public init(rawValue: Self) { self = rawValue }
 }
+
+extension URL: RawRepresentable {
+    public var rawValue: String { self.path }
+    public init(rawValue: String) { self.init(fileURLWithPath: rawValue) }
+}

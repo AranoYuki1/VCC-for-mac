@@ -88,7 +88,7 @@ final class VPMCommand {
         catalyst.run(["list", "repos"]).eraseToVoid()
     }
     
-    func addPackage(_ packageVersion: PackageVersion, to projectURL: URL)  -> Promise<Void, Error> {
+    func addPackage(_ packageVersion: PackageJSON, to projectURL: URL)  -> Promise<Void, Error> {
         catalyst.run(["add", "package", packageVersion.name, "--project", projectURL.path]).eraseToVoid()
     }
     

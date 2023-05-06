@@ -13,18 +13,14 @@ extension Bundle {
     }
 }
 
-final class AppFileManager {
-    private let rootURL: URL
+enum AppFileManager {    
+    static let rootURL = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        .appendingPathComponent(Bundle.appid)
     
-    init() throws {
-        self.rootURL = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            .appendingPathComponent(Bundle.appid)
-    }
-    
-    func makeDirectory(_ name: String) throws -> URL {
+    static func makeDirectory(_ name: String) -> URL {
         let url = rootURL.appendingPathComponent(name)
         if !FileManager.default.fileExists(atPath: url.path) {
-            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         }
         return url
     }

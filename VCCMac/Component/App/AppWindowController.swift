@@ -77,12 +77,12 @@ final class AppWindowController: NSWindowController {
         ])
         .receive(on: .main)
         .tryPeek{ _ in
-            let fileManager = try AppFileManager()
-            let containerDirectoryURL = try fileManager.makeDirectory("projects")
+            let containerDirectoryURL = AppFileManager.makeDirectory("projects")
 
             let manifestCoder = ProjectManifestCoder(logger: logger)
             let projectManager = ProjectManager(command: command, containerDirectoryURL: containerDirectoryURL, manifestCoder: manifestCoder, logger: logger)
-            let packageManager = PackageManager(command: command, manifestCoder: manifestCoder, logger: logger)
+            let localPackageManager = LocalPackageManager(appModel: appModel)
+            let packageManager = PackageManager(command: command, manifestCoder: manifestCoder, localPackageManager: localPackageManager, logger: logger)
             
             appModel.reloadPublisher
                 .receive(on: DispatchQueue.main)

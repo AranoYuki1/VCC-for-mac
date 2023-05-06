@@ -11,13 +11,15 @@ final class ReposListViewController: NSViewController {
     private let scrollView = NSScrollView()
     private let listView = NSStackView()
     
-    private var packages = [Package]() { didSet { reloadData() } }
+    var packages = [Package]() { didSet { reloadData() } }
     
     override func loadView() {
         self.listView.orientation = .vertical
         self.scrollView.contentView = FlipClipView()
         self.scrollView.drawsBackground = false
+        self.scrollView.automaticallyAdjustsContentInsets = false
         self.scrollView.documentView = listView
+        self.scrollView.contentInsets.bottom = 8
         
         self.listView.snp.makeConstraints{ make in
             make.right.left.equalToSuperview()
@@ -48,22 +50,34 @@ final class ReposListViewController: NSViewController {
             .sink{[unowned self] repo, project in
                 self.packages = []
                 self.getPackages(for: repo, project)
-                    .receive(on: .main)
-                    .peek{ self.packages = $0 }
-                    .catch{ Toast(error: $0).show() }
+                    .receive(on: DispatchQueue.main)
+                    .sink(receiveCompletion: {[unowned self] in
+                        if case .failure(let error) = $0 {
+                            self.appModel.logger.error(String(describing: error))
+                        }
+                    }, receiveValue: {[unowned self] in
+                        self.packages = $0
+                    })
+                    .store(in: &objectBag)
             }
             .store(in: &objectBag)
     }
     
-    private func getPackages(for repo: RepoType, _ project: Project) -> Promise<[Package], Error> {
-        guard let model = appSuccessModel else { return .fullfill([]) }
+    private func getPackages(for repo: RepoType, _ project: Project) -> AnyPublisher<[Package], Error> {
+        guard let model = appSuccessModel else { return Just([]).eraseToAnyError().eraseToAnyPublisher() }
         
         switch repo {
-        case .official: return model.packageManager.getOfficialPackages()
-        case .curated: return model.packageManager.getCuratedPackages()
-        case .installed: return model.packageManager.installedPackages(for: project)
-        case .user: return .fullfill([])
+        case .official: return model.packageManager.getOfficialPackages().publisher().eraseToAnyPublisher()
+        case .curated: return model.packageManager.getCuratedPackages().publisher().eraseToAnyPublisher()
+        case .installed: return model.packageManager.installedPackages(for: project).publisher().eraseToAnyPublisher()
+        case .user: return model.packageManager.getLocalPackages().eraseToAnyError().eraseToAnyPublisher()
         }
+    }
+}
+
+extension Publisher {
+    func eraseToAnyError() -> some Publisher<Output, Error> {
+        self.mapError{ $0 }
     }
 }
 
