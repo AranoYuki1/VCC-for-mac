@@ -13,13 +13,16 @@ import UserNotifications
 
 final public class Toast: NSObject {
     public var message: String {
-        get { toastWindow.toastView.message } set { assert(Thread.isMainThread); toastWindow.toastView.message = newValue }
+        get { toastWindow.message } set { assert(Thread.isMainThread); toastWindow.message = newValue }
     }
     public var action: Action? {
-        get { toastWindow.toastView.action } set { assert(Thread.isMainThread); toastWindow.toastView.action = newValue }
+        get { toastWindow.action } set { assert(Thread.isMainThread); toastWindow.action = newValue }
     }
     public var color: NSColor? {
-        get { toastWindow.toastView.color } set { assert(Thread.isMainThread); toastWindow.toastView.color = newValue }
+        get { toastWindow.color } set { assert(Thread.isMainThread); toastWindow.color = newValue }
+    }
+    public var closePublisher: some Publisher<Void, Never> {
+        return closeSubject
     }
     
     public private(set) var isCurrentToast = false
@@ -27,6 +30,7 @@ final public class Toast: NSObject {
     
     private let toastWindow = ToastWindow()
     private var showingOption: ShowingOption?
+    private let closeSubject = PassthroughSubject<Void, Never>()
     
     public enum ShowingOption {
         case duration(CGFloat)
@@ -48,12 +52,13 @@ final public class Toast: NSObject {
     
     public func addAttributeView(_ view: NSView, position: AttributeViewPosition) {
         assert(Thread.isMainThread)
-        toastWindow.toastView.addAttributeView(view, position: position)
+        toastWindow.addAttributeView(view, position: position)
     }
     
-    public func show(_ option: ShowingOption) {
+    @discardableResult
+    public func show(_ option: ShowingOption) -> Toast {
         assert(Thread.isMainThread)
-        if Toast.currentToast != nil { Toast.pendingToasts.append(self); return }
+        if Toast.currentToast != nil { Toast.pendingToasts.append(self); return self }
         
         self.toastWindow.show()
         self.isCurrentToast = true
@@ -67,15 +72,21 @@ final public class Toast: NSObject {
             }
         case .whileDeinit: break
         }
+        return self
     }
     
-    public func show(for duration: TimeInterval = 3) {
+    @discardableResult
+    public func show(for duration: TimeInterval = 3) -> Toast {
         assert(Thread.isMainThread)
         self.show(.duration(duration))
+        return self
     }
     
     public func close() {
         assert(Thread.isMainThread)
+        defer {
+            self.closeSubject.send()
+        }
         guard self.isCurrentToast else { return }
         
         self.toastWindow.closeToast()
@@ -105,6 +116,13 @@ extension Toast {
             make.size.equalTo(16)
         }
         self.addAttributeView(indicator, position: .right)
+    }
+    
+    public func addCancelButton() -> NSButton {
+        let cancelButton = NSButton(title: "", image: R.image.cancel())
+        cancelButton.isBordered = false
+        self.addAttributeView(cancelButton, position: .right)
+        return cancelButton
     }
     
     public func addSpinningProgressIndicator(_ progress: Progress) {
@@ -159,7 +177,22 @@ extension Toast {
 }
 
 final private class ToastWindow: NSPanel {
-    let toastView = ToastView()
+    private let toastView = ToastView()
+    
+    var message: String {
+        get { toastView.message } set { toastView.message = newValue; updateLayout() }
+    }
+    var action: Action? {
+        get { toastView.action } set { toastView.action = newValue; updateLayout() }
+    }
+    var color: NSColor? {
+        get { toastView.color } set { toastView.color = newValue; updateLayout() }
+    }
+    
+    func addAttributeView(_ view: NSView, position: Toast.AttributeViewPosition) {
+        self.toastView.addAttributeView(view, position: position)
+        self.updateLayout()
+    }
     
     func show() {
         self.level = .floating
@@ -285,7 +318,7 @@ final private class ToastView: NSLoadView {
         self.textField.alignment = .center
         self.textField.lineBreakMode = .byWordWrapping
         self.textField.textColor = .white
-        
+                
         self.stackView.addArrangedSubview(actionButton)
         self.actionButton.bezelStyle = .inline
         self.actionButton.setTarget(self, action: #selector(executeAction))

@@ -9,7 +9,7 @@ import CoreUtil
 
 extension AppSuccessModel {
     func modalNewProject() -> Promise<Void, Error> {
-        guard let window = NSApp.mainWindow else { appModel.logger.debug("No window."); return .fullfill() }
+        guard let window = NSApp.mainWindow else { appModel.logger.debug("No window."); return .resolve() }
         
         let model = ProjectTempleteSelectModel(command: self.command, projectManager: self.projectManager, logger: appModel.logger)
         let modal = ProjectTempleteSelectWindow(model: model)
@@ -38,7 +38,7 @@ extension AppSuccessModel {
                         toast.close()
                         Toast(message: R.localizable.projectCreated()).show()
                     }
-                    .subscribe(promise.fullfill, promise.reject)
+                    .subscribe(promise.fulfill, promise.reject)
             }
         }
         
@@ -46,7 +46,7 @@ extension AppSuccessModel {
     }
     
     func modalOpenProject() -> Promise<Void, Error> {
-        guard let window = NSApp.mainWindow else { appModel.logger.debug("No window."); return .fullfill() }
+        guard let window = NSApp.mainWindow else { appModel.logger.debug("No window."); return .resolve() }
         
         let openPanel = NSOpenPanel()
         openPanel.canChooseDirectories = true
@@ -56,7 +56,7 @@ extension AppSuccessModel {
               
         let promise = Promise<Void, Error>()
         openPanel.beginSheetModal(for: window) {
-            defer { promise.fullfill(()) }
+            defer { promise.fulfill(()) }
             guard $0 == .OK, let url = openPanel.url else { return }
             self.addProject(at: url)
         }
@@ -88,7 +88,7 @@ extension AppSuccessModel {
                         toast.close()
                         Toast(message: R.localizable.unpackBackupDone()).show()
                     }
-                    .subscribe(promise.fullfill, promise.reject)
+                    .subscribe(promise.fulfill, promise.reject)
             }
             return promise
         }
@@ -118,7 +118,7 @@ extension AppSuccessModel {
         modal.nameFieldStringValue = projectURL.lastPathComponent + ".zip"
         modal.beginSheetModalPromise(for: NSApp.mainWindow!).eraseToError()
             .flatMap{
-                guard $0 == .OK, let url = modal.url else { return .fullfill() }
+                guard $0 == .OK, let url = modal.url else { return .resolve() }
                 return self.projectManager.backupProject(project, to: url)
             }
             .catch{[self] error in
@@ -156,7 +156,7 @@ extension AppSuccessModel {
             
         NSApp.mainWindow?.beginSheetPromise(modal).eraseToError()
             .flatMap{
-                guard $0 == .OK, !model.title.isEmpty else { return .fullfill() }
+                guard $0 == .OK, !model.title.isEmpty else { return .resolve() }
                 return self.projectManager.renameProject(project, to: model.title)
             }
             .catch{[self] error in
@@ -200,7 +200,7 @@ extension AppSuccessModel {
     @discardableResult
     private func trashProject(_ project: Project) -> Promise<Void, Never> {
         guard let projectURL = project.projectURL else {
-            logger.debug("Missing projectURL"); return .fullfill()
+            logger.debug("Missing projectURL"); return .resolve()
         }
 
         

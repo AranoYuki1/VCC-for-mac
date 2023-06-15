@@ -58,11 +58,11 @@ final class PackageManager {
     func removePackage(_ package: Package, from project: Project) -> Promise<Void, Error> {
         guard let manifest = project.manifest else {
             logger.debug("Cannot Manipulate Packages of Legacy Project.")
-            return .fullfill()
+            return .resolve()
         }
 
         return Promise.tryAsync{ () -> Promise<Void, Error> in
-            guard let projectURL = project.projectURL else { return .fullfill() }
+            guard let projectURL = project.projectURL else { return .resolve() }
             
             let topVersion = package.versions[0]
             let identifier = topVersion.name
@@ -80,7 +80,7 @@ final class PackageManager {
     }
     
     func addPackage(_ package: PackageJSON, to project: Project) -> Promise<Void, Error> {
-        guard let projectURL = project.projectURL else { return .fullfill() }
+        guard let projectURL = project.projectURL else { return .resolve() }
         
         return command.addPackage(package, to: projectURL)
             .flatPeek{ project.reload() }

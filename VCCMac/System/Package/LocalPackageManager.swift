@@ -58,6 +58,7 @@ final class LocalPackageManager {
                 .finally{
                     let packageNames = errorPackages.map{ $0.lastPathComponent }.joined(separator: ", ")
                     let message = "\(errorPackages.count) packages had errors and were removed. (\(packageNames))"
+                    self.appModel.logger.warn(message)
                 }
                 .catch(by: appModel.logger)
         }

@@ -117,7 +117,7 @@ final class ProjectManager {
     }
     
     func reloadProjects() -> Promise<Void, Error> {
-        if self.isReloading { return .fullfill() }
+        if self.isReloading { return .resolve() }
         
         self.isReloading = true
         
@@ -151,7 +151,7 @@ final class ProjectManager {
             }
         }
         .peek{
-            Promise.combineAll(self.projects.map{ $0.projectType })
+            self.projects.map{ $0.projectType }.combineAll()
                 .finally{ self.isReloading = false }
         }
     }

@@ -29,7 +29,7 @@ final class VPMCommand {
     // MARK: - Project -
     
     func newProject(name: String, templete: VPMTemplate, at url: URL) -> Promise<Void, Error> {
-        catalyst.run(["new", name, templete.name, "--path", url.path])
+        catalyst.run(["new", name, templete.name, "--path", url.path]).complete
             .tryMap{_ in
                 var isDirectory: ObjCBool = false
                 let exists = FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory)
@@ -41,7 +41,7 @@ final class VPMCommand {
     }
 
     func getProjectType(at url: URL) -> Promise<ProjectType, Error> {
-        catalyst.run(["check", "project", url.path])
+        catalyst.run(["check", "project", url.path]).complete
             .tryMap{ _result in
                 let result = _result as NSString
                                 
@@ -79,27 +79,27 @@ final class VPMCommand {
     func migrateProject(at url: URL, progress: PassthroughSubject<String, Never>, inplace: Bool) -> Promise<Void, Error> {
         var arguments = ["migrate", "project", url.path]
         if inplace { arguments.append("--inplace") }
-        return catalyst.run(arguments, interactiveStyle: .line(progress)).eraseToVoid()
+        return catalyst.run(arguments, interactiveStyle: .line(progress)).complete.eraseToVoid()
     }
     
     // MARK: - Package -
     
     func updatePackage() -> Promise<Void, Error> {
-        catalyst.run(["list", "repos"]).eraseToVoid()
+        catalyst.run(["list", "repos"]).complete.eraseToVoid()
     }
     
     func addPackage(_ packageVersion: PackageJSON, to projectURL: URL)  -> Promise<Void, Error> {
-        catalyst.run(["add", "package", packageVersion.name, "--project", projectURL.path]).eraseToVoid()
+        catalyst.run(["add", "package", packageVersion.name, "--project", projectURL.path]).complete.eraseToVoid()
     }
     
     // MARK: - Templates -
     
     func installTemplates() -> Promise<Void, Error> {
-        catalyst.run(["install", "templates"]).eraseToVoid()
+        catalyst.run(["install", "templates"]).complete.eraseToVoid()
     }
     
     func listTemplates() -> Promise<[VPMTemplate], Error> {
-        catalyst.run(["list", "templates"])
+        catalyst.run(["list", "templates"]).complete
             .map{ result in
                 let list = result.split(separator: "\n")
                     .map{ String($0) as NSString }
@@ -127,11 +127,11 @@ final class VPMCommand {
     // MARK: - Requirements -
     
     func checkHub() -> Promise<Void, Error> {
-        catalyst.run(["check", "hub"]).eraseToVoid()
+        catalyst.run(["check", "hub"]).complete.eraseToVoid()
     }
     
     func checkUnity() -> Promise<Void, Error> {
-        catalyst.run(["check", "unity"])
+        catalyst.run(["check", "unity"]).complete
             .tryMap{ result in
                 if result.contains("Unity is not installed") {
                     throw VPMError.checkFailed("Unity is not installed.")

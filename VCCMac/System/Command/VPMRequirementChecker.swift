@@ -75,7 +75,7 @@ final class VPMRequirementChecker {
         
         let dotnetCommand = DotnetCatalyst(logger: appModel.logger)
         
-        let dotnetCheck = dotnetCommand.run(["tool", "--help"]).packToResult()
+        let dotnetCheck = dotnetCommand.run(["tool", "--help"]).complete.packToResult()
             .peek{
                 do { _ = try $0.get() } catch {
                     failureReasons.append(.dotnetNotFound)
@@ -83,7 +83,7 @@ final class VPMRequirementChecker {
             }
             .eraseToVoid()
         
-        let vpmCheck = command.catalyst.run([]).packToResult()
+        let vpmCheck = command.catalyst.run([]).complete.packToResult()
             .peek{
                 do {
                     _ = try $0.get()
@@ -113,8 +113,7 @@ final class VPMRequirementChecker {
             }
             .eraseToVoid()
         
-        return Promise.combineAll([dotnetCheck, vpmCheck])
-            .map{_ in failureReasons }
+        return [dotnetCheck, vpmCheck].combineAll().map{_ in failureReasons }
     }
 }
 

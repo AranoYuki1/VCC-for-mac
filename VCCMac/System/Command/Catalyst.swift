@@ -20,10 +20,27 @@ protocol CommandCatalyst {
     var logger: Logger { get }
 }
 
+struct CatalystTask {
+    let complete: Promise<String, Error>
+    private let process: Process
+    
+    init(complete: Promise<String, Error>, process: Process) {
+        self.complete = complete
+        self.process = process
+    }
+    
+    func terminate() {
+        self.process.terminate()
+    }
+}
+
 extension CommandCatalyst {
+    
     @discardableResult
-    func run(_ argumenets: [String], interactiveStyle: CatalystInteractiveStyle = .none) -> Promise<String, Error> {
-        Promise<String, Error>.tryAsync(on: .main) { resolve, reject in
+    func run(_ argumenets: [String], interactiveStyle: CatalystInteractiveStyle = .none) -> CatalystTask {
+        let task = Process()
+
+        let complete = Promise<String, Error>.tryAsync(on: .main) { resolve, reject in
             do {
                 try self.checkExecutable()
             } catch {
@@ -32,7 +49,6 @@ extension CommandCatalyst {
             
             let command = "\(executableURL.lastPathComponent) \(argumenets.joined(separator: " "))"
             
-            let task = Process()
             let outputPipe = Pipe()
             let errorPipe = Pipe()
             
@@ -83,6 +99,8 @@ extension CommandCatalyst {
                 reject(CatalystError.failToStartCommand(error))
             }
         }
+        
+        return CatalystTask(complete: complete, process: task)
     }
     
     func checkExecutable() throws {

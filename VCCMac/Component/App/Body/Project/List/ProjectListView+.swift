@@ -67,9 +67,10 @@ final class ProjectListViewController: NSViewController {
     }
     
     private func filtereProjects(_ projects: [Project], _ filter: ProjectFilterType, _ lfilter: ProjectLegacyFilterType) -> Promise<[Project], Never> {
-        if filter == .all && lfilter == .all { return .fullfill(projects) }
+        if filter == .all && lfilter == .all { return .resolve(projects) }
         
-        return Promise.combineAll(projects.map{ $0.projectType })
+        return projects.map{ $0.projectType }
+            .combineAll()
             .map{_ in
                 projects.filter{
                     guard case let .fulfilled(type) = $0.projectType.state else { return false }

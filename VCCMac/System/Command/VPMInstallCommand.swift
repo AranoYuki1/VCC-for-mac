@@ -28,6 +28,6 @@ final class VPMInstallCommand {
         \(arguments)
         """.split(separator: "\n").joined(separator: "; ")
         
-        return self.catalyst.run(["-c", command])
+        return self.catalyst.run(["-c", command]).complete
     }
 }

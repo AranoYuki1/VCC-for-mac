@@ -13,6 +13,6 @@ final class UnityCommand {
     init(catalyst: UnityCatalyst) { self.catalyst = catalyst }
     
     func openProject(at url: URL) -> Promise<Void, Error> {
-        catalyst.run(["-projectPath", url.path]).eraseToVoid()
+        catalyst.run(["-projectPath", url.path]).complete.eraseToVoid()
     }
 }

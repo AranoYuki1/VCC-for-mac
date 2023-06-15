@@ -71,10 +71,7 @@ final class AppWindowController: NSWindowController {
         
         let initializer = ApplicationInitializer()
         
-        return Promise.combineAll([
-            initializer.initialize(appModel: appModel),
-            initializer.initialize(command: command)
-        ])
+        return [initializer.initialize(appModel: appModel), initializer.initialize(command: command)].combineAll()
         .receive(on: .main)
         .tryPeek{ _ in
             let containerDirectoryURL = AppFileManager.makeDirectory("projects")
@@ -98,7 +95,7 @@ final class AppWindowController: NSWindowController {
     
     private func reloadRequirement(command: VPMCommand, appModel: AppModel, packageManager: PackageManager, projectManager: ProjectManager, logger: Logger) -> Promise<Void, Never> {
         assert(Thread.isMainThread)
-        guard let contentViewController = self.contentViewController else { return .fullfill() }
+        guard let contentViewController = self.contentViewController else { return .resolve() }
         
         return VPMRequirementChecker(appModel: appModel, command: command).failureReasons().receive(on: .main).map{ reasons in
             if reasons.isEmpty {

@@ -14,6 +14,31 @@ final class __DebugViewController: NSViewController {
     override func loadView() { self.view = cell }
     
     override func chainObjectDidLoad() {
+        cell.showNekoIgaiButton.actionPublisher
+            .sink{[self] in
+                let toast = Toast(message: "ねこだと思ってました... お願いです。キャンセルしてください...")
+                toast.addSpinningIndicator()
+                toast.show(.whileDeinit)
+                Promise.wait(for: 10)
+                    .sink{
+                        guard toast.isCurrentToast else { return }
+                        toast.close()
+                        Toast(message: "なんでキャンセルしてくれないの！！！").show()
+                        Toast(message: "もういいもん！！！").show()
+                        Toast(message: "にゃん！").show()
+                    }
+                
+                toast.addCancelButton().actionPublisher
+                    .sink{
+                        toast.message = "キャンセルしています..."
+                        Promise.wait(for: 0.5).sink{
+                            toast.close()
+                        }
+                    }
+                    .store(in: &objectBag)
+            }
+            .store(in: &objectBag)
+        
         cell.showNekoButton.actionPublisher
             .sink{
                 let toast = Toast(message: "ねこですよろしくおねがいします")
@@ -81,6 +106,7 @@ final class __DebugViewController: NSViewController {
 
 final private class DebugView: Page {
     let showNekoButton = Button(title: "🐱ねこ!", image: nil)
+    let showNekoIgaiButton = Button(title: "🐱ねこではない", image: nil)
     let openLogButton = Button(title: "Open", image: nil)
     let exportLogButton = Button(title: "Export", image: nil)
     let clearLogButton = Button(title: "Clear", image: nil)
@@ -88,7 +114,8 @@ final private class DebugView: Page {
     override func onAwake() {        
         self.addSection2(
             Section(title: "Test", items: [
-                Area(title: "Show Neko", message: "Show Neko Toast as Test of Toast", control: showNekoButton)
+                Area(title: "Show Neko", message: "Show Neko Toast as Test of Toast", control: showNekoButton),
+                Area(title: "Show Neko Igai", message: "猫以外を表示します。", control: showNekoIgaiButton)
             ]),
             Section(title: "Log", items: [
                 Area(icon: R.image.folder(), title: "Show Log Files", message: "Open log files directory.", control: openLogButton),

@@ -24,7 +24,7 @@ extension FileHandle {
             var buffer = Data()
             let promise = Promise<Data, Never>()
             self.subscribers.append{
-                if $0.isEmpty { promise.fullfill(buffer) }
+                if $0.isEmpty { promise.fulfill(buffer) }
                 buffer += $0
             }
             return promise
