@@ -8,6 +8,18 @@
 import CoreUtil
 
 extension AppSuccessModel {
+    func addRepogitory(_ url: URL) {
+        let toast = Toast(message: "レポジトリを追加しています...")
+        toast.addSpinningIndicator()
+        self.packageManager.addRepogitory(url)
+            .receive(on: .main)
+            .finally{
+                toast.close()
+            }
+        toast.show(.whileDeinit)
+    }
+    
+    
     func modalNewProject() -> Promise<Void, Error> {
         guard let window = NSApp.mainWindow else { appModel.logger.debug("No window."); return .resolve() }
         
@@ -62,8 +74,6 @@ extension AppSuccessModel {
         }
         return promise
     }
-    
-    
     
     func addProject(at url: URL) {
         func addZip() -> Promise<Void, Error> {

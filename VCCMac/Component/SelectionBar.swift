@@ -37,6 +37,11 @@ class SelectionBar: NSLoadView {
     private let stackView = NSStackView()
     private let scrollView = NSScrollView()
     
+    struct Item {
+        let title: String
+        let rightAction: ((NSView) -> ())?
+    }
+    
     var selectedItemIndex: Int? {
         didSet {
             if let selectedItemIndex = self.selectedItemIndex {
@@ -68,7 +73,12 @@ class SelectionBar: NSLoadView {
     }
     
     func addItem(_ title: String) {
-        let itemView = SelectionItemView(title: title)
+        self.addItem(Item(title: title, rightAction: nil))
+    }
+
+    func addItem(_ item: Item) {
+        let itemView = SelectionItemView(title: item.title)
+        itemView.rightAction = item.rightAction
         self.itemViews.append(itemView)
         self.stackView.addArrangedSubview(itemView)
         
@@ -95,8 +105,8 @@ class SelectionBar: NSLoadView {
         
         self.stackView.spacing = 4
         self.stackView.snp.makeConstraints{ make in
-            make.top.bottom.left.equalToSuperview()
-            make.width.greaterThanOrEqualToSuperview()
+            make.height.equalTo(24)
+            make.top.left.bottom.equalToSuperview()
         }
         
         self.stackView.publisher(for: \.frame)
@@ -112,12 +122,17 @@ final private class SelectionItemView: NSLoadView {
     let titleLabel = NSTextField(labelWithString: "")
     var isSelected = false { didSet { needsDisplay = true } }
     var isHighlighted = false { didSet { needsDisplay = true } }
+    var rightAction: ((NSView) -> ())? = nil
     
     let selectPublisher = PassthroughSubject<Void, Never>()
     
     convenience init(title: String) {
         self.init()
         self.titleLabel.stringValue = title
+    }
+    
+    override func rightMouseDown(with event: NSEvent) {
+        rightAction?(self)
     }
     
     override func mouseDown(with event: NSEvent) {

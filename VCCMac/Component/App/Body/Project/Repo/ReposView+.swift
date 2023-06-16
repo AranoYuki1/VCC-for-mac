@@ -7,22 +7,6 @@
 
 import CoreUtil
 
-enum RepoType: String, TextItem {
-    case installed
-    case official
-    case curated
-    case user
-    
-    var title: String {
-        switch self {
-        case .installed: return R.localizable.installed()
-        case .official: return R.localizable.official()
-        case .curated: return R.localizable.curated()
-        case .user: return R.localizable.user()
-        }
-    }
-}
-
 final class ReposViewController: NSViewController {
     private let cell = ReposView()
     private let listViewController = ReposListViewController()
@@ -33,19 +17,60 @@ final class ReposViewController: NSViewController {
         self.addChild(listViewController)
     }
     
-    override func chainObjectDidLoad() {
-        self.appSuccessModelPublisher.map{ $0.$selectedRepo }.switchToLatest()
-            .sink{[unowned self] in cell.header.typePicker.selectedItem = $0 }.store(in: &objectBag)
+    private func onRightClickMenu(_ view: NSView, repo: PackageManager.Repogitory) {
+        let menu = NSMenu()
         
-        self.cell.header.typePicker.itemPublisher
-            .sink{[unowned self] in appSuccessModel?.selectedRepo = $0 }.store(in: &objectBag)
+        menu.addItem(title: "Remove Repogitory") {[self] in
+            self.appSuccessModel?.packageManager.removeRepogitory(repo.id)
+        }
+        
+        menu.popUp(positioning: nil, at: .zero, in: view)
+    }
+    
+    override func chainObjectDidLoad() {
+        self.appSuccessModelPublisher.map{ $0.packageManager.$repos }.switchToLatest()
+            .receive(on: DispatchQueue.main)
+            .sink{[self] repos in
+                let typePicker = cell.header.typePicker
+                typePicker.removeAllItems()
+                typePicker.addItem("Installed")
+                repos.forEach{ repo in
+                    if repo.isUserRepo {
+                        typePicker.addItem(SelectionBar.Item(title: repo.name, rightAction: { view in
+                            self.onRightClickMenu(view, repo: repo)
+                        }))
+                    } else {
+                        typePicker.addItem(repo.name)
+                    }
+                }
+            }
+            .store(in: &objectBag)
+        
+        self.appSuccessModelPublisher.map{ $0.$repoIndex }.switchToLatest()
+            .sink{
+                switch $0 {
+                case .installed: self.cell.header.typePicker.selectedItemIndex = 0
+                case .local(let index): self.cell.header.typePicker.selectedItemIndex = index + 1
+                }
+            }
+            .store(in: &objectBag)
+
+        self.cell.header.typePicker.selectedIndexPublisher
+            .sink{
+                if $0 == 0 {
+                    self.appSuccessModel?.repoIndex = .installed
+                } else {
+                    self.appSuccessModel?.repoIndex = .local($0 - 1)
+                }
+            }
+            .store(in: &objectBag)
     }
 }
 
 final class ReposHeader: NSLoadStackView {
     let separator = NSBox() => { $0.boxType = .separator }
     let titleLabel = NSTextField(labelWithString: "")
-    let typePicker = EnumSelectionBar<RepoType>()
+    let typePicker = SelectionBar()
     
     override func onAwake() {
         self.addSubview(separator)
@@ -65,9 +90,8 @@ final class ReposHeader: NSLoadStackView {
         )
         
         self.addArrangedSubview(typePicker)
-        RepoType.allCases.forEach{ self.typePicker.addItem($0) }
+        self.typePicker.setContentCompressionResistancePriority(.init(1), for: .horizontal)
         self.typePicker.spacing = 8
-        self.typePicker.selectedItem = .official
     }
 }
 
@@ -81,11 +105,7 @@ final class ReposView: NSLoadView {
         self.header.snp.makeConstraints{ make in
             make.left.right.top.equalToSuperview()
         }
-//        self.addSubview(separator)
-//        self.separator.snp.makeConstraints{ make in
-//            make.left.right.equalToSuperview()
-//            make.top.equalTo(header.snp.bottom)
-//        }
+
         self.addSubview(listViewPlaceholder)
         self.listViewPlaceholder.snp.makeConstraints{ make in
             make.top.equalTo(header.snp.bottom)

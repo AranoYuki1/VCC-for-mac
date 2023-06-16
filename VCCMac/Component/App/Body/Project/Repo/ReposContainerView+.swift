@@ -17,7 +17,7 @@ final class ReposContainerViewController: NSViewController {
     private let localPackageSeparator = NSBox() => {
         $0.boxType = .separator
     }
-    private let addLocalPackageButton = Button(title: "Add Local Package")
+    private let addLocalPackageButton = Button(title: "Add User Repo")
     
     override func loadView() {
         self.view = cell
@@ -29,19 +29,18 @@ final class ReposContainerViewController: NSViewController {
         self.repoViewController.view.snp.makeConstraints{ make in
             make.top.left.right.equalToSuperview()
         }
-//        self.repoViewContainer.addArrangedSubview(localPackageSeparator)
-//        self.repoViewContainer.setCustomSpacing(0, after: repoViewController.view)
-//        
-//        self.repoViewContainer.addArrangedSubview(addLocalPackageButton)
-//        self.addLocalPackageButton.snp.makeConstraints{ make in
-//            make.bottom.left.right.equalToSuperview().inset(8)
-//        }
+        self.repoViewContainer.addArrangedSubview(localPackageSeparator)
+        self.repoViewContainer.setCustomSpacing(0, after: repoViewController.view)
+        
+        self.repoViewContainer.addArrangedSubview(addLocalPackageButton)
+        self.addLocalPackageButton.snp.makeConstraints{ make in
+            make.bottom.left.right.equalToSuperview().inset(8)
+        }
     }
     
     override func chainObjectDidLoad() {
         let project = self.appSuccessModelPublisher.map{ $0.$selectedProject }.switchToLatest().compactMap{ $0 }
-        let repo = appSuccessModelPublisher.map{ $0.$selectedRepo }.switchToLatest()
-        
+                
         project
             .sink{[unowned self] in
                 $0.projectType
@@ -55,7 +54,29 @@ final class ReposContainerViewController: NSViewController {
                     .catch{ self.appModel.logger.error($0) }
             }
             .store(in: &objectBag)
-
         
+        self.addLocalPackageButton.actionPublisher
+            .sink{ self.openAddPackageModal() }.store(in: &objectBag)
+    }
+    
+    private func openAddPackageModal() {
+        let alert = NSAlert()
+        alert.messageText = "Enter URL of VCC Package"
+        alert.informativeText = "Enter the URL to the repository. The repository will be added to VPM and will be available for future use."
+        
+        let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 240, height: 22))
+        textField.placeholderString = "https://example.com/vpm.json"
+        alert.accessoryView = textField
+        alert.addButton(withTitle: R.localizable.oK())
+        alert.addButton(withTitle: R.localizable.cancel())
+
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        
+        guard let url = URL(string: textField.stringValue) else {
+            appModel.logger.error("'\(textField.stringValue)' is not URL.")
+            return
+        }
+        
+        self.appSuccessModel?.packageManager.addRepogitory(url)
     }
 }

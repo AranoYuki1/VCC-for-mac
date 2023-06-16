@@ -9,50 +9,50 @@ import CoreUtil
 
 final class PackageManager {
     let command: VPMCommand
+    let vccSetting: VCCCommandSetting
     let logger: Logger
     let manifestCoder: ProjectManifestCoder
     
-    let localPackageManager: LocalPackageManager
-
+    @Observable
+    var repos: [Repogitory] = []
     
     private var packageTable = [String: Package]()
-    private let repogitoryLoader: RepogitoryLoader
-    private let officialRepogitory: Promise<RepogitoryJSON, Error>
-    private let curatedRepogitory: Promise<RepogitoryJSON, Error>
+    private var objectBag = Set<AnyCancellable>()
     
-    init(command: VPMCommand, manifestCoder: ProjectManifestCoder, localPackageManager: LocalPackageManager, logger: Logger) {
+    init(command: VPMCommand, logger: Logger, vccSetting: VCCCommandSetting, manifestCoder: ProjectManifestCoder) {
         self.command = command
-        self.manifestCoder = manifestCoder
         self.logger = logger
-        self.localPackageManager = localPackageManager
+        self.vccSetting = vccSetting
+        self.manifestCoder = manifestCoder
         
-        let repogitoryLoader = RepogitoryLoader()
-        self.repogitoryLoader = repogitoryLoader
-        
-        self.officialRepogitory = repogitoryLoader
-            .load(URL.homeDirectory.appendingPathComponent("/.local/share/VRChatCreatorCompanion/Repos/vrc-official.json"))
-        self.curatedRepogitory = repogitoryLoader
-            .load(URL.homeDirectory.appendingPathComponent("/.local/share/VRChatCreatorCompanion/Repos/vrc-curated.json"))
-        
-        _ = getOfficialPackages()
-        _ = getCuratedPackages()
-        _ = getLocalPackages()
+        self.startRepositoryLoad()
     }
     
-    func installedPackages(for project: Project) -> Promise<[Package], Error> {
-        asyncHandler{[self] wait in
-            
-            _ = try wait | getOfficialPackages().combine(getCuratedPackages())
-            
-            guard let manifest = project.manifest else {
-                logger.debug("Cannot Manipulate Packages of Legacy Project."); return []
+    func addRepogitory(_ url: URL) -> Promise<Void, Never> {
+        self.command.addRepo(url).catch(by: logger)
+            .finally{ try? self.vccSetting.reload() }
+    }
+    
+    func removeRepogitory(_ id: String) {
+        self.command.removeRepo(id).catch(by: logger)
+            .finally{
+                try? self.vccSetting.reload()
             }
-            var packages = [Package]()
-            
-            packages = manifest.locked.keys.compactMap{ self.packageTable[$0] }
-
-            return packages
+    }
+    
+    func installedPackages(for project: Project) -> Promise<Repogitory, Never> {
+        guard let manifest = project.manifest else {
+            logger.debug("Cannot Manipulate Packages of Legacy Project."); return .resolve(.init(packages: [], name: "error", id: "error"))
         }
+        
+        return $repos.filter{ !$0.isEmpty }.firstValue()
+            .map{_ in
+                Repogitory(
+                    packages: manifest.locked.keys.compactMap{ self.packageTable[$0] },
+                    name: "Installed",
+                    id: "com.yuki.installed"
+                )
+            }
     }
     
     func removePackage(_ package: Package, from project: Project) -> Promise<Void, Error> {
@@ -85,37 +85,79 @@ final class PackageManager {
         return command.addPackage(package, to: projectURL)
             .flatPeek{ project.reload() }
     }
-    
-    func getOfficialPackages() -> Promise<[Package], Error> {
-        self.officialRepogitory.tryMap{
-            try $0.packageList.map{ try self.model(for: $0) }
-        }
-    }
-    
-    func getCuratedPackages() -> Promise<[Package], Error> {
-        self.curatedRepogitory.tryMap{
-            try $0.packageList.map{ try self.model(for: $0) }
-        }
-    }
-    
-    func getLocalPackages() -> some Publisher<[Package], Never> {
-        self.localPackageManager.$packages.map{
-            $0.map{
-                let package = Package(version: $0.packageJSON)
-                package.localPackageURL = $0.localURL
-                self.packageTable[$0.packageJSON.name] = package
-                return package
+        
+    private func startRepositoryLoad() {
+        let repogitoryLoader = RepogitoryLoader()
+        
+        let officialRepoURL = URL.homeDirectory.appendingPathComponent("/.local/share/VRChatCreatorCompanion/Repos/vrc-official.json")
+        let curatedRepoURL = URL.homeDirectory.appendingPathComponent("/.local/share/VRChatCreatorCompanion/Repos/vrc-curated.json")
+        
+        let repos = self.vccSetting.$userRepos
+            .map{ [officialRepoURL, curatedRepoURL] + $0.map{ URL(fileURLWithPath: $0.localPath) } }
+            .map{
+                return $0.map{ repogitoryLoader.load($0) }.combineAll().publisher()
+            }.switchToLatest()
+            .tryMap{[self] repos in
+                var repogitories = [Repogitory]()
+                for (i, repo) in repos.enumerated() {
+                    let r = Repogitory(
+                        meta: repo, packages: try repo.packageList.map{ try createPackage(for: $0) }
+                    )
+                    if i >= 2 {
+                        r.isUserRepo = true
+                    }
+                    repogitories.append(r)
+                }
+                return repogitories
             }
-        }
+        
+        repos
+            .catch{
+                self.logger.error("\($0)")
+                return Just([PackageManager.Repogitory]())
+            }
+            .sink{
+                self.repos = $0
+            }
+            .store(in: &objectBag)
     }
     
-    private func model(for package: PackageContainerJSON) throws -> Package {
+    private func createPackage(for package: PackageContainerJSON) throws -> Package {
         let versions = package.versions.sorted(by: { key, _ in key }).map{ $0.value }
         guard !versions.isEmpty else { throw PackageError.noVersions }
         
         let package = Package(versions: versions, displayName: versions[0].displayName, selectedVersion: versions[0])
         self.packageTable[versions[0].name] = package
         return package
+    }
+}
+
+extension PackageManager {
+    final class Repogitory {
+        let packages: [Package]
+        
+        let name: String
+        let author: String?
+        let id: String
+        let url: URL?
+        
+        fileprivate(set) var isUserRepo: Bool = false
+        
+        fileprivate init(meta: RepogitoryJSON, packages: [Package]) {
+            self.packages = packages
+            self.name = meta.name
+            self.author = meta.author
+            self.id = meta.id
+            self.url = meta.url
+        }
+        
+        fileprivate init(packages: [Package], name: String, id: String, author: String? = nil,  url: URL? = nil) {
+            self.packages = packages
+            self.name = name
+            self.id = id
+            self.author = author
+            self.url = url
+        }
     }
 }
 
@@ -139,10 +181,15 @@ final class Package {
     }
 }
 
+
+
+
+
 private struct RepogitoryJSON: Codable {
     let name: String
     let author: String
     let url: URL
+    let id: String
     let packages: [String: PackageContainerJSON]
     
     var packageList: [PackageContainerJSON] {
@@ -170,7 +217,7 @@ final private class RepogitoryLoader {
         struct LocalFile: Codable {
             let repo: RepogitoryJSON
         }
-        
+                
         return .tryAsync{
             let data = try Data(contentsOf: localRepogitoryURL)
             return try Self.decoder.decode(LocalFile.self, from: data).repo

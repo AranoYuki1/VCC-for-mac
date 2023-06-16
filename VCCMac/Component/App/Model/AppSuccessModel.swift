@@ -70,7 +70,19 @@ final class AppSuccessModel {
     @RestorableState("filter") var filterType: ProjectFilterType = .all
     @RestorableState("filterlegacy") var legacyFilterType: ProjectLegacyFilterType = .all
     @RestorableState("migration.copy") var copyMigration = true
-    @RestorableState("repo") var selectedRepo: RepoType = .official
+    @RestorableState("repo.index") var repoIndex: SelectedRepo = .installed
+    
+    enum SelectedRepo: RawRepresentable {
+        case installed
+        case local(Int)
+        
+        var rawValue: Int {
+            switch self { case .installed: return -1 case .local(let index): return index }
+        }
+        init(rawValue: Int) {
+            if rawValue == -1 { self = .installed } else { self = .local(rawValue) }
+        }
+    }
     
     init(appModel: AppModel, command: VPMCommand, projectManager: ProjectManager, packageManager: PackageManager, logger: Logger) {
         self.appModel = appModel
@@ -83,3 +95,29 @@ final class AppSuccessModel {
     }
 }
 
+extension AppSuccessModel {
+    var selectedRepo: some Publisher<PackageManager.Repogitory, Never> {
+        self.$repoIndex
+            .map{
+                switch $0 {
+                case .installed:
+                    return self.$selectedProject
+                        .compactMap{ $0 }
+                        .map{ self.packageManager.installedPackages(for: $0).publisher() }
+                        .switchToLatest()
+                        .eraseToAnyPublisher()
+                case .local(let index):
+                    return self.packageManager.$repos
+                        .compactMap{ array in
+                            if array.indices.contains(index) {
+                                return array[index]
+                            }
+                            self.repoIndex = .installed
+                            return nil
+                        }
+                        .eraseToAnyPublisher()
+                }
+            }
+            .switchToLatest()
+    }
+}

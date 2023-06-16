@@ -49,7 +49,9 @@ final class PackageCell: NSLoadView {
             $0.addArrangedSubview(titleLabel)
             $0.addArrangedSubview(identifierLabel)
         })
-        self.stackView.addArrangedSubview(descriptionLabel)
+        self.stackView.addArrangedSubview(descriptionLabel => {
+            $0.setContentCompressionResistancePriority(.init(1), for: .horizontal)
+        })
         self.stackView.addArrangedSubview(NSStackView() => {
             $0.addArrangedSubview(versionPicker)
             $0.addArrangedSubview(NSView() => {

@@ -43,35 +43,11 @@ final class ReposListViewController: NSViewController {
     }
     
     override func chainObjectDidLoad() {
-        let repo = appSuccessModelPublisher.map{ $0.$selectedRepo }.switchToLatest()
-        let project = appSuccessModelPublisher.map{ $0.$selectedProject }.switchToLatest().compactMap{ $0 }
-        
-        repo.combineLatest(project)
-            .sink{[unowned self] repo, project in
-                self.packages = []
-                self.getPackages(for: repo, project)
-                    .receive(on: DispatchQueue.main)
-                    .sink(receiveCompletion: {[unowned self] in
-                        if case .failure(let error) = $0 {
-                            self.appModel.logger.error(String(describing: error))
-                        }
-                    }, receiveValue: {[unowned self] in
-                        self.packages = $0
-                    })
-                    .store(in: &objectBag)
-            }
-            .store(in: &objectBag)
-    }
-    
-    private func getPackages(for repo: RepoType, _ project: Project) -> AnyPublisher<[Package], Error> {
-        guard let model = appSuccessModel else { return Just([]).eraseToAnyError().eraseToAnyPublisher() }
-        
-        switch repo {
-        case .official: return model.packageManager.getOfficialPackages().publisher().eraseToAnyPublisher()
-        case .curated: return model.packageManager.getCuratedPackages().publisher().eraseToAnyPublisher()
-        case .installed: return model.packageManager.installedPackages(for: project).publisher().eraseToAnyPublisher()
-        case .user: return model.packageManager.getLocalPackages().eraseToAnyError().eraseToAnyPublisher()
-        }
+        let repo = appSuccessModelPublisher.map{ $0.selectedRepo }.switchToLatest()
+        repo
+            .receive(on: DispatchQueue.main)
+            .sink{ self.packages = $0.packages }
+        .store(in: &objectBag)
     }
 }
 

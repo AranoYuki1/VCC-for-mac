@@ -8,9 +8,16 @@
 import Foundation
 import CoreUtil
 
-enum VPMError: Error {
+enum VPMError: Error, CustomStringConvertible {
     case postCheckFailed(String)
     case checkFailed(String)
+    
+    var description: String {
+        switch self {
+        case .checkFailed(let message): return message.trimmingCharacters(in: .whitespacesAndNewlines)
+        case .postCheckFailed(let message): return message.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+    }
 }
 
 struct VPMTemplate {
@@ -90,6 +97,28 @@ final class VPMCommand {
     
     func addPackage(_ packageVersion: PackageJSON, to projectURL: URL)  -> Promise<Void, Error> {
         catalyst.run(["add", "package", packageVersion.name, "--project", projectURL.path]).complete.eraseToVoid()
+    }
+    
+    // MARK: - Repo -
+    
+    func removeRepo(_ id: String) -> Promise<Void, Error> {
+        catalyst.run(["remove", "repo", id]).complete.eraseToVoid()
+    }
+    
+    func addRepo(_ url: URL) -> Promise<Void, Error> {
+        catalyst.run(["add", "repo", url.absoluteString]).complete
+            .tryMap{ result in
+                if !result.matches(#"^\[\d\d:\d\d:\d\d ERR\]"#).isEmpty {
+                    let message = String(result[result.index(result.startIndex, offsetBy: 15)...])
+                    throw VPMError.checkFailed(message)
+                }
+                if !result.matches(#"^\[\d\d:\d\d:\d\d WRN\]"#).isEmpty {
+                    let message = String(result[result.index(result.startIndex, offsetBy: 15)...])
+                    throw VPMError.checkFailed(message)
+                }
+                
+            }
+            .eraseToVoid()
     }
     
     // MARK: - Templates -

@@ -78,8 +78,7 @@ final class AppWindowController: NSWindowController {
 
             let manifestCoder = ProjectManifestCoder(logger: logger)
             let projectManager = ProjectManager(command: command, containerDirectoryURL: containerDirectoryURL, manifestCoder: manifestCoder, logger: logger)
-            let localPackageManager = LocalPackageManager(appModel: appModel)
-            let packageManager = PackageManager(command: command, manifestCoder: manifestCoder, localPackageManager: localPackageManager, logger: logger)
+            let packageManager = PackageManager(command: command, logger: logger, vccSetting: appModel.commandSetting, manifestCoder: manifestCoder)
             
             appModel.reloadPublisher
                 .receive(on: DispatchQueue.main)
