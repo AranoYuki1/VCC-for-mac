@@ -3,12 +3,12 @@
     <channel>
         <title>VCCMac</title>
         <item>
-            <title>1.0.3</title>
-            <pubDate>Sat, 06 May 2023 16:18:58 +0900</pubDate>
-            <sparkle:version>1.0.3</sparkle:version>
-            <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
+            <title>1.0.4</title>
+            <pubDate>Fri, 18 Aug 2023 14:20:09 +0900</pubDate>
+            <sparkle:version>1.0.4</sparkle:version>
+            <sparkle:shortVersionString>1.0.4</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://aranoyuki1.github.io/VCC-for-mac/sparkle/VCCMac.zip" length="21231079" type="application/octet-stream" sparkle:edSignature="WCzO22IWSZqyehEb3OQT+FLo4eWpLeDkQR7rjljx2l6a4ckyAMDPWgoMf/JIjimQFLyeneiZ1GWpZQu0pw15BQ=="/>
+            <enclosure url="https://aranoyuki1.github.io/VCC-for-mac/sparkle/VCCMac.app.zip" length="21572204" type="application/octet-stream" sparkle:edSignature="/5KmurFY815OWsPOBvj5AXFqvJ+yS+GLs0roRCCWTGGi/+vLZhBAmLBY6bQ1W3yT+FvZQ/Cmfv+VRwEzH9i3DQ=="/>
         </item>
     </channel>
 </rss>

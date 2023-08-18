@@ -25,7 +25,7 @@ This is the procedure for doing a release.
 In this section you should use terminal.
 
 1. Change directory to project root.
-2. Remove existing appcasts and archives.
+2. Remove existing appcasts and archives in  `docs/sparkle`.
 3. Place the app archive in  `docs/sparkle`.
 4. Run `generate_appcast docs/sparkle`  to create appcast.
 
