@@ -14,7 +14,7 @@ final class ApplicationInitializer {
     func initialize(command: VPMCommand) -> Promise<Void, Error> {
         guard !appSuccessModelInitialized else { return .resolve() }; appSuccessModelInitialized = true
         
-        return command.updatePackage()
+        return command.listRepos()
     }
     
     func initialize(appModel: AppModel) -> Promise<Void, Error> {

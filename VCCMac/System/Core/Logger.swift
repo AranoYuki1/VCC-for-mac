@@ -7,8 +7,8 @@
 
 import CoreUtil
 
-public protocol LoggerSubscriber: Actor {
-    var minimumLevel: Logger.Level { get }
+public protocol LoggerSubscriber {
+    var levelFilter: (Logger.Level) -> Bool { get }
     
     func receive(_ log: Logger.Log)
 }
@@ -73,10 +73,9 @@ final public class Logger {
     
     private func sendLog(_ message: String, for level: Level, file: StaticString, line: UInt) {
         let log = Log(date: Date(), level: level, message: message, file: file, line: line)
-        Task.detached{
-            for subscriber in self.subscribers where await log.level >= subscriber.minimumLevel {
-                await subscriber.receive(log)
-            }
+        
+        for subscriber in self.subscribers where subscriber.levelFilter(log.level) {
+            subscriber.receive(log)
         }
     }
 }
@@ -92,20 +91,35 @@ extension Promise {
 
 extension Logger {
     public func subscribe(minimumLevel: Level, fileHandle: FileHandle) {
-        self.subscribe(FileHandleLoggerSubscriber(minimumLevel: minimumLevel, fileHandle: fileHandle))
+        self.subscribe(FileHandleLoggerSubscriber(fileHandle: fileHandle, levelFilter: {
+            $0 >= minimumLevel
+        }))
     }
-    public func subscribe(minimumLevel: Level, _ handler: @escaping @Sendable (Logger.Log) -> ()) {
-        self.subscribe(ClosureLoggerSubscriber(minimumLevel: minimumLevel, handler: handler))
+    public func subscribe(minimumLevel: Level, _ handler: @escaping (Logger.Log) -> ()) {
+        self.subscribe(ClosureLoggerSubscriber(handler: handler, levelFilter: {
+            $0 >= minimumLevel
+        }))
+    }
+    
+    public func subscribe(level: Level, fileHandle: FileHandle) {
+        self.subscribe(FileHandleLoggerSubscriber(fileHandle: fileHandle, levelFilter: {
+            $0 == level
+        }))
+    }
+    public func subscribe(level: Level, _ handler: @escaping (Logger.Log) -> ()) {
+        self.subscribe(ClosureLoggerSubscriber(handler: handler, levelFilter: {
+            $0 == level
+        }))
     }
 }
 
-private actor FileHandleLoggerSubscriber: LoggerSubscriber {
-    let minimumLevel: Logger.Level
+private class FileHandleLoggerSubscriber: LoggerSubscriber {
+    let levelFilter: (Logger.Level) -> Bool
     
     private let fileHandle: FileHandle
 
-    init(minimumLevel: Logger.Level, fileHandle: FileHandle) {
-        self.minimumLevel = minimumLevel
+    init(fileHandle: FileHandle, levelFilter: @escaping (Logger.Level) -> Bool) {
+        self.levelFilter = levelFilter
         self.fileHandle = fileHandle
     }
     
@@ -119,13 +133,14 @@ private actor FileHandleLoggerSubscriber: LoggerSubscriber {
     }
 }
 
-private actor ClosureLoggerSubscriber: LoggerSubscriber {
-    let minimumLevel: Logger.Level
-    let handler: @Sendable (Logger.Log) -> ()
+private class ClosureLoggerSubscriber: LoggerSubscriber {
+    let levelFilter: (Logger.Level) -> Bool
     
-    init(minimumLevel: Logger.Level, handler: @escaping @Sendable (Logger.Log) -> ()) {
-        self.minimumLevel = minimumLevel
+    private let handler: (Logger.Log) -> ()
+    
+    init(handler: @escaping (Logger.Log) -> (), levelFilter: @escaping (Logger.Level) -> Bool) {
         self.handler = handler
+        self.levelFilter = levelFilter
     }
     
     func receive(_ log: Logger.Log) {

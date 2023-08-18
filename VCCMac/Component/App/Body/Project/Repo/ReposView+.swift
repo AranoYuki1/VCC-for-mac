@@ -21,7 +21,29 @@ final class ReposViewController: NSViewController {
         let menu = NSMenu()
         
         menu.addItem(title: "Remove Repogitory") {[self] in
-            self.appSuccessModel?.packageManager.removeRepogitory(repo.id)
+            guard let model = self.appSuccessModel else { return }
+            
+            let toast = Toast(message: "Removing \(repo.name)...")
+            toast.addSpinningIndicator()
+            toast.show(untilComplete: model.packageManager.removeRepogitory(repo.id))
+            
+            Toast(message: "Removed \(repo.name)").show()
+        }
+        
+        if self.appModel.debug {
+            menu.addItem(title: "Show Repogitory URL (Debug)") {
+                self.appModel.logger.info(repo.url?.absoluteString ?? "")
+            }
+            
+            menu.addItem(title: "Show Repogitory Info (Debug)") {
+                for package in repo.packages {
+                    self.appModel.logger.info("=======================")
+                    self.appModel.logger.info(package.displayName)
+                    for version in package.versions {
+                        self.appModel.logger.info(String(describing: version))
+                    }
+                }
+            }
         }
         
         menu.popUp(positioning: nil, at: .zero, in: view)

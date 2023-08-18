@@ -50,7 +50,7 @@ extension AppSuccessModel {
                         toast.close()
                         Toast(message: R.localizable.projectCreated()).show()
                     }
-                    .subscribe(promise.fulfill, promise.reject)
+                    .subscribe(promise.resolve, promise.reject)
             }
         }
         
@@ -68,7 +68,7 @@ extension AppSuccessModel {
               
         let promise = Promise<Void, Error>()
         openPanel.beginSheetModal(for: window) {
-            defer { promise.fulfill(()) }
+            defer { promise.resolve() }
             guard $0 == .OK, let url = openPanel.url else { return }
             self.addProject(at: url)
         }
@@ -98,7 +98,7 @@ extension AppSuccessModel {
                         toast.close()
                         Toast(message: R.localizable.unpackBackupDone()).show()
                     }
-                    .subscribe(promise.fulfill, promise.reject)
+                    .subscribe(promise.resolve, promise.reject)
             }
             return promise
         }

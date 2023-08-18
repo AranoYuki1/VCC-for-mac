@@ -23,9 +23,10 @@ extension CALayer {
     }
 }
 
+private let null = NSNull()
+
 private class CALayerAnimationsDisablingDelegate: NSObject, CALayerDelegate {
     public static let shared = CALayerAnimationsDisablingDelegate()
-    let null = NSNull()
 
     func action(for layer: CALayer, forKey event: String) -> CAAction? { null }
 }

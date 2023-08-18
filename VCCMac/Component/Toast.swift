@@ -35,6 +35,7 @@ final public class Toast: NSObject {
     public enum ShowingOption {
         case duration(CGFloat)
         case whileDeinit
+        case promise(Promise<Void, Error>)
     }
     
     private static var pendingToasts = Deque<Toast>()
@@ -70,14 +71,23 @@ final public class Toast: NSObject {
             DispatchQueue.main.asyncAfter(deadline: .now()+duration) {
                 self.close()
             }
+        case .promise(let promise):
+            promise.receive(on: .main).finally {
+                self.close()
+            }
         case .whileDeinit: break
         }
         return self
     }
     
     @discardableResult
+    public func show<T, F>(untilComplete promise: Promise<T, F>) -> Toast {
+        self.show(.promise(promise.eraseToVoid().eraseToError()))
+        return self
+    }
+    
+    @discardableResult
     public func show(for duration: TimeInterval = 3) -> Toast {
-        assert(Thread.isMainThread)
         self.show(.duration(duration))
         return self
     }

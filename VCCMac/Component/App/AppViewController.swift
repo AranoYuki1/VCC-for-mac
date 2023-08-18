@@ -12,9 +12,6 @@ final class ErrorViewController: NSViewController {
     override func loadView() {
         self.view = NSView()
     }
-    override func viewDidLoad() {
-
-    }
 }
 
 final class AppViewController: NSSplitViewController {

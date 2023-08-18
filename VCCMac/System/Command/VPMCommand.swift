@@ -91,15 +91,19 @@ final class VPMCommand {
     
     // MARK: - Package -
     
-    func updatePackage() -> Promise<Void, Error> {
-        catalyst.run(["list", "repos"]).complete.eraseToVoid()
-    }
-    
     func addPackage(_ packageVersion: PackageJSON, to projectURL: URL)  -> Promise<Void, Error> {
         catalyst.run(["add", "package", packageVersion.name, "--project", projectURL.path]).complete.eraseToVoid()
     }
     
     // MARK: - Repo -
+    
+    func listRepo(_ url: URL) -> Promise<Void, Error> {
+        catalyst.run(["list", "repo", url.absoluteString]).complete.eraseToVoid()
+    }
+    
+    func listRepos() -> Promise<Void, Error> {
+        catalyst.run(["list", "repos"]).complete.eraseToVoid()
+    }
     
     func removeRepo(_ id: String) -> Promise<Void, Error> {
         catalyst.run(["remove", "repo", id]).complete.eraseToVoid()

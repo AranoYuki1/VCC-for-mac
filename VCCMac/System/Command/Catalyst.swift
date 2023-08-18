@@ -40,7 +40,7 @@ extension CommandCatalyst {
     func run(_ argumenets: [String], interactiveStyle: CatalystInteractiveStyle = .none) -> CatalystTask {
         let task = Process()
 
-        let complete = Promise<String, Error>.tryAsync(on: .main) { resolve, reject in
+        let complete = Promise<String, Error>.tryDispatch(on: .main) { resolve, reject in
             do {
                 try self.checkExecutable()
             } catch {

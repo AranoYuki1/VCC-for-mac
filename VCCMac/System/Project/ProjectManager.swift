@@ -96,21 +96,21 @@ final class ProjectManager {
     }
     
     func addProject(_ existingProjectURL: URL) -> Promise<Void, Error> {
-        asyncHandler{[self] wait in
-            let project = try wait | projectIOManager.new(existingProjectURL, manager: self)
+        Promise{[self] in
+            let project = try await projectIOManager.new(existingProjectURL, manager: self).value
             let result = projectChecker.check(project)
             do {
                 try projectChecker.recoverIfPossible(project, result: result)
                 
                 if let duplicatedProject = self.projects.first(where: { $0.projectURL == project.projectURL }) {
-                    try wait | projectIOManager.updateAccessTime(duplicatedProject)
+                    try await projectIOManager.updateAccessTime(duplicatedProject).value
                     self.updateProjectSort()
                     throw ProjectError.loadFailed("Duplicated project added.")
                 }
                 
                 self.projects.insert(project, at: 0)
             } catch {
-                wait | self.unlinkProject(project)
+                await self.unlinkProject(project).value
                 throw error
             }
         }
@@ -121,7 +121,7 @@ final class ProjectManager {
         
         self.isReloading = true
         
-        return asyncHandler{[self] wait in
+        return Promise{[self] in
             let containerURLs = try FileManager.default.contentsOfDirectory(at: containerDirectoryURL, includingPropertiesForKeys: nil)
             
             var projects = [Project]()
@@ -130,7 +130,7 @@ final class ProjectManager {
             
             for containerURL in containerURLs {
                 do {
-                    let project = try wait | loadProject(at: containerURL)
+                    let project = try await loadProject(at: containerURL).value
                     guard let projectURL = project.projectURL else { throw ProjectError.loadFailed("No project entity.") }
                     guard FileManager.default.isDirectory(projectURL) else { throw ProjectError.loadFailed("projectURL is not directory.") }
                     guard !projectURLs.contains(projectURL) else { throw ProjectError.loadFailed("Project already added.") }
@@ -138,7 +138,7 @@ final class ProjectManager {
                     if projectURL.inTrash() { continue }
                     projects.append(project)
                 } catch { // remove broken projects
-                    wait | removeProject(containerURL)
+                    await removeProject(containerURL).value
                     errorCount += 1
                     self.logger.debug(String(describing: error))
                 }
@@ -195,7 +195,7 @@ final class ProjectManager {
     }
     
     private func removeProject(_ containerURL: URL) -> Promise<Void, Never> {
-        Promise.async(on: managerQueue){
+        Promise.dispatch(on: managerQueue){
             do {
                 try FileManager.default.removeItem(at: containerURL)
             } catch {

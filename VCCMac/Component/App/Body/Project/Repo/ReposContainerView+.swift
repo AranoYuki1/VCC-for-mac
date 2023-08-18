@@ -77,6 +77,12 @@ final class ReposContainerViewController: NSViewController {
             return
         }
         
-        self.appSuccessModel?.packageManager.addRepogitory(url)
+        guard let model = self.appSuccessModel else { return }
+        
+        Toast(message: "Adding '\(url)'...")
+            .show(untilComplete: model.packageManager.addRepogitory(url))
+            .addSpinningIndicator()
+        
+        Toast(message: "Added '\(url)'").show()
     }
 }

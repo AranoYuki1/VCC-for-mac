@@ -24,14 +24,14 @@ final class ProjectIOManager {
     }
     
     func rename(_ projectURL: URL, name: String) -> Promise<Void, Error> {
-        Promise.tryAsync{
+        Promise.tryDispatch{
             let renamedURL = projectURL.deletingLastPathComponent().appendingPathComponent(name)
             try FileManager.default.moveItem(at: projectURL, to: renamedURL)
         }
     }
     
     func load(_ containerURL: URL, manager: ProjectManager) -> Promise<Project, Error> {
-        Promise.tryAsync{
+        Promise.tryDispatch{
             let linkURL = containerURL.appendingPathComponent(Project.projectLinkDirectoryName)
             let projectURL: URL
             do {
@@ -51,7 +51,7 @@ final class ProjectIOManager {
     }
     
     func new(_ projectURL: URL, manager: ProjectManager) -> Promise<Project, Error> {
-        Promise.tryAsync{[self] in
+        Promise.tryDispatch{[self] in
             guard FileManager.default.fileExists(atPath: projectURL.path) else {
                 throw ProjectError.loadFailed("Project is not exists.")
             }
@@ -77,7 +77,7 @@ final class ProjectIOManager {
     }
     
     func updateAccessTime(_ project: Project) -> Promise<Void, Error> {
-        Promise.tryAsync{
+        Promise.tryDispatch{
             var meta = try ProjectIOManager.decoder.decode(ProjectMeta.self, from: Data(contentsOf: project.metaFileURL))
             meta.lastAccessDate = Date()
             project.accessDate = Date()
@@ -86,7 +86,7 @@ final class ProjectIOManager {
     }
     
     private func loadProject(at projectURL: URL, containerURL: URL, manager: ProjectManager) -> Promise<Project, Error> {
-        Promise.tryAsync{[self] in
+        Promise.tryDispatch{[self] in
             do {
                 let metaURL = containerURL.appendingPathComponent(Project.projectMetaFileName)
                 let meta = try Self.decoder.decode(ProjectMeta.self, from: Data(contentsOf: metaURL))

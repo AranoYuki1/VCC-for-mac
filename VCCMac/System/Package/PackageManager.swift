@@ -25,18 +25,33 @@ final class PackageManager {
         self.vccSetting = vccSetting
         self.manifestCoder = manifestCoder
         
-        self.startRepositoryLoad()
+        _ = self.reloadRepositories()
+    }
+    
+    func checkForUpdate() -> Promise<Void, Error> {
+        self.repos.compactMap{ $0.url }
+            .map{ self.command.listRepo($0) }
+            .combineAll()
+            .eraseToVoid()
+            .flatMap{_ in self.reloadRepositories().eraseToError() }
+            .eraseToVoid()
     }
     
     func addRepogitory(_ url: URL) -> Promise<Void, Never> {
         self.command.addRepo(url).catch(by: logger)
-            .finally{ try? self.vccSetting.reload() }
-    }
-    
-    func removeRepogitory(_ id: String) {
-        self.command.removeRepo(id).catch(by: logger)
+            .receive(on: .main)
             .finally{
                 try? self.vccSetting.reload()
+                _ = self.reloadRepositories()
+            }
+    }
+    
+    func removeRepogitory(_ id: String) -> Promise<Void, Never> {
+        self.command.removeRepo(id).catch(by: logger)
+            .receive(on: .main)
+            .finally{
+                try? self.vccSetting.reload()
+                _ = self.reloadRepositories()
             }
     }
     
@@ -61,7 +76,7 @@ final class PackageManager {
             return .resolve()
         }
 
-        return Promise.tryAsync{ () -> Promise<Void, Error> in
+        return Promise.tryDispatch{ () -> Promise<Void, Error> in
             guard let projectURL = project.projectURL else { return .resolve() }
             
             let topVersion = package.versions[0]
@@ -86,49 +101,49 @@ final class PackageManager {
             .flatPeek{ project.reload() }
     }
         
-    private func startRepositoryLoad() {
+    private func reloadRepositories() -> Promise<Void, Never> {
         let repogitoryLoader = RepogitoryLoader()
         
         let officialRepoURL = URL.homeDirectory.appendingPathComponent("/.local/share/VRChatCreatorCompanion/Repos/vrc-official.json")
         let curatedRepoURL = URL.homeDirectory.appendingPathComponent("/.local/share/VRChatCreatorCompanion/Repos/vrc-curated.json")
+                
+        func createPackage(for package: PackageContainerJSON) throws -> Package {
+            let versions = package.versions.sorted(by: { key, _ in key }).map{ $0.value }
+            guard !versions.isEmpty else { throw PackageError.noVersions }
+            
+            let package = Package(versions: versions, displayName: versions[0].displayName, selectedVersion: versions[0])
+            self.packageTable[versions[0].name] = package
+            return package
+        }
         
-        let repos = self.vccSetting.$userRepos
-            .map{ [officialRepoURL, curatedRepoURL] + $0.map{ URL(fileURLWithPath: $0.localPath) } }
-            .map{
-                return $0.map{ repogitoryLoader.load($0) }.combineAll().publisher()
-            }.switchToLatest()
-            .tryMap{[self] repos in
-                var repogitories = [Repogitory]()
-                for (i, repo) in repos.enumerated() {
-                    let r = Repogitory(
-                        meta: repo, packages: try repo.packageList.map{ try createPackage(for: $0) }
-                    )
-                    if i >= 2 {
-                        r.isUserRepo = true
-                    }
-                    repogitories.append(r)
-                }
-                return repogitories
+        func loadRepo(_ url: URL, isUserRepo: Bool) -> Promise<Repogitory, Error> {
+            Promise{
+                let meta = try await repogitoryLoader.load(url).value
+                let repo = Repogitory(
+                    meta: meta, packages: try meta.packageList.map{ try createPackage(for: $0) }
+                )
+                repo.isUserRepo = isUserRepo
+                
+                return repo
             }
+        }
         
-        repos
-            .catch{
-                self.logger.error("\($0)")
-                return Just([PackageManager.Repogitory]())
-            }
-            .sink{
-                self.repos = $0
-            }
-            .store(in: &objectBag)
-    }
-    
-    private func createPackage(for package: PackageContainerJSON) throws -> Package {
-        let versions = package.versions.sorted(by: { key, _ in key }).map{ $0.value }
-        guard !versions.isEmpty else { throw PackageError.noVersions }
+        var repos = [Promise<Repogitory, Error>]()
         
-        let package = Package(versions: versions, displayName: versions[0].displayName, selectedVersion: versions[0])
-        self.packageTable[versions[0].name] = package
-        return package
+        repos.append(loadRepo(officialRepoURL, isUserRepo: false))
+        repos.append(loadRepo(curatedRepoURL, isUserRepo: false))
+        
+        for repo in vccSetting.userRepos {
+            repos.append(loadRepo(URL(fileURLWithPath: repo.localPath), isUserRepo: true))
+        }
+        
+        return repos.combineAll()
+            .replaceError{
+                self.logger.error($0)
+                return []
+            }
+            .peek{ self.repos = $0 }
+            .eraseToVoid()
     }
 }
 
@@ -161,10 +176,14 @@ extension PackageManager {
     }
 }
 
-final class Package {
+final class Package: CustomStringConvertible {
     let versions: [PackageJSON]
     let displayName: String
     var localPackageURL: URL?
+    
+    var description: String {
+        return "Package(\(self.displayName), \(versions))"
+    }
     
     @Observable var selectedVersion: PackageJSON
     
@@ -202,7 +221,7 @@ private struct PackageContainerJSON: Codable {
     var displayName: String { versions.values.first?.displayName ?? "No Name" }
 }
 
-final class PackageJSON: Codable {
+struct PackageJSON: Codable {
     let name: String
     let displayName: String
     let version: String
@@ -218,7 +237,7 @@ final private class RepogitoryLoader {
             let repo: RepogitoryJSON
         }
                 
-        return .tryAsync{
+        return .tryDispatch{
             let data = try Data(contentsOf: localRepogitoryURL)
             return try Self.decoder.decode(LocalFile.self, from: data).repo
         }

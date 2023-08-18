@@ -20,7 +20,7 @@ enum BackupError: Error, CustomStringConvertible {
 
 final class ProjectBackupManager {
     func makeBackup(_ projectURL: URL, at url: URL) -> Promise<Void, Error> {
-        Promise.tryAsync{
+        Promise.tryDispatch{
             try FileManager.default.zipItem(at: projectURL, to: url)
         }
     }
@@ -29,7 +29,7 @@ final class ProjectBackupManager {
         .appendingPathComponent("unpacking_backup")
     
     func loadBackup(_ backupURL: URL, to url: URL, progress: Progress) -> Promise<URL, Error> {
-        Promise.tryAsync{
+        Promise.tryDispatch{
             let unpackDirectory = self.temporaryDirectory.appendingPathComponent(UUID().uuidString)
             
             try FileManager.default.createDirectory(at: unpackDirectory, withIntermediateDirectories: true)

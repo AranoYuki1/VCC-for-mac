@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ExceptionHanlder.h"
+#import <CoreUtil/ExceptionHanlder.h>
 
 //! Project version number for CoreUtil.
 FOUNDATION_EXPORT double CoreUtilVersionNumber;

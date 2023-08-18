@@ -42,7 +42,7 @@ public enum Terminal {
             task.standardError = errorPipe
         }
         
-        return Promise<String, Error>.tryAsync(on: queue) { resolve, reject in
+        return Promise<String, Error>.tryDispatch(on: queue) { resolve, reject in
             try task.run()
             task.waitUntilExit()
             

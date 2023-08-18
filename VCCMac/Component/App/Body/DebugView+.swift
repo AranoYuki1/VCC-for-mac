@@ -14,6 +14,10 @@ final class __DebugViewController: NSViewController {
     override func loadView() { self.view = cell }
     
     override func chainObjectDidLoad() {
+        cell.showConsoleButton.actionPublisher
+            .sink{ ConsoleWindow.shared.show() }
+            .store(in: &objectBag)
+        
         cell.showNekoIgaiButton.actionPublisher
             .sink{[self] in
                 let toast = Toast(message: "ねこだと思ってました... お願いです。キャンセルしてください...")
@@ -105,6 +109,7 @@ final class __DebugViewController: NSViewController {
 }
 
 final private class DebugView: Page {
+    let showConsoleButton = Button(title: "Show Console", image: nil)
     let showNekoButton = Button(title: "🐱ねこ!", image: nil)
     let showNekoIgaiButton = Button(title: "🐱ねこではない", image: nil)
     let openLogButton = Button(title: "Open", image: nil)
@@ -118,6 +123,7 @@ final private class DebugView: Page {
                 Area(title: "Show Neko Igai", message: "猫以外を表示します。", control: showNekoIgaiButton)
             ]),
             Section(title: "Log", items: [
+                Area(title: "Show Console", message: "Show Console", control: showConsoleButton),
                 Area(icon: R.image.folder(), title: "Show Log Files", message: "Open log files directory.", control: openLogButton),
                 Area(icon: R.image.export(), title: "Export Logs", message: "Export log files as zip.", control: exportLogButton),
                 Area(icon: R.image.clear_circle(), title: "Clear Log files", message: "20 or more files automatically deleted.", control: clearLogButton)

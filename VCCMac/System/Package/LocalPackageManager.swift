@@ -29,7 +29,7 @@ final class LocalPackageManager {
     init(appModel: AppModel) {
         self.appModel = appModel
         
-        Promise.tryAsync{ try self.listPackage() }
+        Promise.tryDispatch{ try self.listPackage() }
             .peek{ self.packages = $0 }
             .catch(by: appModel.logger)
     }

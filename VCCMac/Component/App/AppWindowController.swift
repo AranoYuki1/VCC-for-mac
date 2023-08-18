@@ -23,7 +23,8 @@ final class AppWindowController: NSWindowController {
         let logger = self.makeLogger(loggerManager)
         let commandSetting = VCCCommandSetting()
         let appModel = AppModel(logger: logger, loggerManager: loggerManager, sidebarManager: .shared, commandSetting: commandSetting)
-                
+        
+        // connect appearance
         appModel.$appearanceType
             .sink{[unowned self] in
                 switch $0 {
@@ -33,26 +34,45 @@ final class AppWindowController: NSWindowController {
                 }
             }
             .store(in: &objectBag)
-                
+        
+        // connect sidebar
         appModel.$tool
             .sink{[unowned self] in self.window?.title = $0.title }
             .store(in: &objectBag)
         
+        // load system
         self.loadSystem(logger, appModel: appModel)
             .catch{ logger.debug($0) }
+        
+        #if DEBUG
+        ConsoleWindow.shared.show()
+        #endif
     }
     
     private func makeLogger(_ loggerManager: LoggerManager) -> Logger {
         let logger = Logger()
         
-        logger.subscribe(minimumLevel: .error) { log in
-            DispatchQueue.main.async {
-                Toast(message: log.message, color: .systemRed).show()
-            }
+        logger.subscribe(level: .error) { log in
+            DispatchQueue.main.async { Toast(message: log.message, color: .systemRed).show() }
         }
+        logger.subscribe(level: .warn) { log in
+            DispatchQueue.main.async { Toast(message: log.message, color: .systemYellow).show() }
+        }
+        logger.subscribe(level: .info) { log in
+            DispatchQueue.main.async { Toast(message: log.message).show() }
+        }
+        
         #if DEBUG
-        logger.subscribe(minimumLevel: .debug, fileHandle: FileHandle.standardOutput)
+        logger.subscribe(level: .log) { log in
+            DispatchQueue.main.async { Toast(message: log.message, color: .systemGray).show() }
+        }
+        
+        logger.subscribe(level: .debug, fileHandle: FileHandle.standardOutput)
         #endif
+        
+        logger.subscribe(level: .debug) { log in
+            DispatchQueue.main.async { ConsoleWindow.shared.append(log) }
+        }
         
         do {
             try loggerManager.setup(logger)
@@ -62,7 +82,7 @@ final class AppWindowController: NSWindowController {
         
         return logger
     }
-    
+        
     private func loadSystem(_ logger: Logger, appModel: AppModel) -> Promise<Void, Error> {
         self.contentViewController?.chainObject = appModel
 
@@ -71,7 +91,7 @@ final class AppWindowController: NSWindowController {
         
         let initializer = ApplicationInitializer()
         
-        return [initializer.initialize(appModel: appModel), initializer.initialize(command: command)].combineAll()
+        return initializer.initialize(appModel: appModel).combine(initializer.initialize(command: command))
         .receive(on: .main)
         .tryPeek{ _ in
             let containerDirectoryURL = AppFileManager.makeDirectory("projects")
