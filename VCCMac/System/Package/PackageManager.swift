@@ -28,6 +28,10 @@ final class PackageManager {
         _ = self.reloadRepositories()
     }
     
+    func findPackage(for name: String) -> Package? {
+        packageTable[name]
+    }
+    
     func checkForUpdate() -> Promise<Void, Error> {
         self.repos.compactMap{ $0.url }
             .map{ self.command.listRepo($0) }
@@ -108,7 +112,9 @@ final class PackageManager {
         let curatedRepoURL = URL.homeDirectory.appendingPathComponent("/.local/share/VRChatCreatorCompanion/Repos/vrc-curated.json")
                 
         func createPackage(for package: PackageContainerJSON) throws -> Package {
-            let versions = package.versions.sorted(by: { key, _ in key }).map{ $0.value }
+            let versions = package.versions.map{ $0.value }.sorted(by: {
+                $0.version.compare($1.version) == .orderedDescending
+            })
             guard !versions.isEmpty else { throw PackageError.noVersions }
             
             let package = Package(versions: versions, displayName: versions[0].displayName, selectedVersion: versions[0])
@@ -199,9 +205,6 @@ final class Package: CustomStringConvertible {
         self.selectedVersion = selectedVersion
     }
 }
-
-
-
 
 
 private struct RepogitoryJSON: Codable {

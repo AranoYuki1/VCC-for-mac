@@ -20,6 +20,9 @@ final public class Button: NSLoadButton {
     public var backgroundColor: NSColor = NSColor.controlAccentColor {
         didSet { self.needsDisplay = true }
     }
+    public var insets: NSEdgeInsets {
+        get { self.stackView.edgeInsets } set { self.stackView.edgeInsets = newValue }
+    }
     public override var isEnabled: Bool {
         didSet { self.alphaValue = isEnabled ? 1 : 0.2 }
     }

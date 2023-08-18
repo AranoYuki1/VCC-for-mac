@@ -17,6 +17,30 @@ final class ReposViewController: NSViewController {
         self.addChild(listViewController)
     }
     
+    private func updatePackages() {
+        guard let model = self.appSuccessModel, let project = model.selectedProject, let manifest = project.manifest else { return }
+        
+        let packageManager = model.packageManager
+        
+        _ = Promise{
+            try await packageManager.checkForUpdate().value
+            
+            for (name, package) in manifest.locked {
+                guard let nextPackage = packageManager.findPackage(for: name) else { return }
+                guard let maxVersion = nextPackage.versions.max(by: { $0.version < $1.version }) else { return }
+                
+                let toast = Toast(message: "Updating \(name)...").show(.whileDeinit)
+                
+                if package.version < maxVersion.version {
+                    try await packageManager.removePackage(nextPackage, from: project).value
+                    try await packageManager.addPackage(maxVersion, to: project).value
+                }
+                
+                toast.close()
+            }
+        }
+    }
+    
     private func onRightClickMenu(_ view: NSView, repo: PackageManager.Repogitory) {
         let menu = NSMenu()
         
@@ -86,12 +110,17 @@ final class ReposViewController: NSViewController {
                 }
             }
             .store(in: &objectBag)
+        
+        self.cell.header.updateButton.actionPublisher
+            .sink{[unowned self] in self.updatePackages() }.store(in: &objectBag)
     }
 }
 
 final class ReposHeader: NSLoadStackView {
     let separator = NSBox() => { $0.boxType = .separator }
     let titleLabel = NSTextField(labelWithString: "")
+    let updateButton = Button(title: "Update All")
+    let titleStackView = NSStackView()
     let typePicker = SelectionBar()
     
     override func onAwake() {
@@ -102,7 +131,10 @@ final class ReposHeader: NSLoadStackView {
         self.edgeInsets = .init(x: 10, y: 12)
         self.orientation = .vertical
         self.alignment = .left
-        self.addArrangedSubview(titleLabel)
+        
+        self.addArrangedSubview(titleStackView)
+        self.titleStackView.orientation = .horizontal
+        self.titleStackView.addArrangedSubview(titleLabel)
         self.titleLabel.attributedStringValue = NSAttributedString(
             string: R.localizable.packages().uppercased(), attributes: [
                 .kern: 2.5,
@@ -110,6 +142,13 @@ final class ReposHeader: NSLoadStackView {
                 .font: NSFont.systemFont(ofSize: 11, weight: .medium)
             ]
         )
+        
+        self.titleStackView.addArrangedSubview(NSView())
+        self.titleStackView.addArrangedSubview(updateButton)
+        self.updateButton.backgroundColor = .systemGray
+        self.updateButton.snp.makeConstraints{ make in
+            make.height.equalTo(18)
+        }
         
         self.addArrangedSubview(typePicker)
         self.typePicker.setContentCompressionResistancePriority(.init(1), for: .horizontal)
