@@ -30,12 +30,30 @@ final class EnumSelectionBar<Item: TextItem>: SelectionBar {
     }
 }
 
+final class NSHorizontallyScrollableScrollView: NSScrollView {
+    override func scrollWheel(with event: NSEvent) {
+        guard event.modifierFlags.contains(.command) || event.modifierFlags.contains(.shift) else {
+            super.scrollWheel(with: event)
+            return
+        }
+
+        if let cgEvent: CGEvent = event.cgEvent?.copy() {
+            cgEvent.setDoubleValueField(.scrollWheelEventDeltaAxis1, value: Double(event.scrollingDeltaX))
+            cgEvent.setDoubleValueField(.scrollWheelEventDeltaAxis2, value: Double(event.scrollingDeltaY))
+
+            if let nsEvent = NSEvent(cgEvent: cgEvent) {
+                super.scrollWheel(with: nsEvent)
+            }
+        }
+    }
+}
+
 class SelectionBar: NSLoadView {
     var edgeInsets: NSEdgeInsets { get { stackView.edgeInsets } set { stackView.edgeInsets = newValue } }
     var spacing: CGFloat { get { stackView.spacing } set { stackView.spacing = newValue } }
     
     private let stackView = NSStackView()
-    private let scrollView = NSScrollView()
+    private let scrollView = NSHorizontallyScrollableScrollView()
     
     struct Item {
         let title: String
